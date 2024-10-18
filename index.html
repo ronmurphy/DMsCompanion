@@ -1,0 +1,1336 @@
+<html lang="en"><div style="display: none;"></div><head></head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DM's Companion</title>
+    <meta name="description" content="Virtual Dungeon Master's screen for 5th edition with essential tools and references">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #e74c3c;
+            --text-color: #ecf0f1;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--secondary-color);
+            padding: 10px;
+        }
+        .tab {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .tab:hover {
+            background-color: var(--accent-color);
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: var(--secondary-color);
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .active-tab {
+            background-color: var(--accent-color);
+        }
+        .active-content {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid var(--text-color);
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--accent-color);
+        }
+        .dice-roller {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .dice {
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent-color);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            position: relative;
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: var(--secondary-color);
+            border: 1px solid var(--text-color);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            margin: 2px;
+        }
+        .badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+        .dice-history {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--secondary-color);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .dice:hover {
+            transform: scale(1.1);
+        }
+        .result {
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .combat-tracker, .npc-generator, .loot-generator {
+            margin-top: 20px;
+        }
+        button {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 5px;
+            margin: 5px;
+        }
+        #weather-svg {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            .tab {
+                margin-bottom: 10px;
+            }
+        }
+        .game-map {
+    display: inline-block;
+    border: 2px solid #333;
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+}
+
+.wall {
+    background-color: #333;
+}
+
+.corridor {
+    background-color: #ccc;
+}
+
+.room {
+    background-color: #fff;
+    border: 1px solid #999;
+}
+
+.room-details {
+    margin-bottom: 20px;
+}
+        #map-result {
+            background-color: white;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+        .room-contents {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .ref-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .ref-col {
+            width: 48%;
+        }
+
+        .ref-col table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ref-col th, .ref-col td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .ref-col th {
+            background-color: var(--accent-color);
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><style>
+                        body, html {
+                            touch-action: manipulation;
+                            user-select: none;
+                            -webkit-user-select: none;
+                            -webkit-touch-callout: none;
+                            -webkit-tap-highlight-color: rgba(0,0,0,0);
+                        }
+                    </style></head>
+<body>
+    <div class="container">
+        <h1>DM's Companion</h1>
+        <div class="tabs">
+            <div class="tab" onclick="openTab(event, 'rules')">Rules Reference</div>
+            <div class="tab" onclick="openTab(event, 'dice')">Dice Roller</div>
+            <div class="tab" onclick="openTab(event, 'combat')">Combat Tracker</div>
+            <div class="tab" onclick="openTab(event, 'npc')">NPC Generator</div>
+            <div class="tab" onclick="openTab(event, 'loot')">Loot Generator</div>
+            <div class="tab" onclick="openTab(event, 'weather')">Weather Generator</div>
+            <div class="tab" onclick="openTab(event, 'adventure')">Adventure</div>
+        </div>
+
+        <div id="rules" class="tab-content active-content">
+            <h2>Quick Rules Reference</h2>
+
+            <div class="ref-row">
+                <div class="ref-col">
+                    <h3>Common Weapons</h3>
+                    <table>
+                        <tr><th>Weapon</th><th>Damage</th><th>Properties</th></tr>
+                        <tr><td>Dagger</td><td>1d4 piercing</td><td>Finesse, light, thrown (20/60)</td></tr>
+                        <tr><td>Shortsword</td><td>1d6 piercing</td><td>Finesse, light</td></tr>
+                        <tr><td>Longsword</td><td>1d8 slashing</td><td>Versatile (1d10)</td></tr>
+                        <tr><td>Greatsword</td><td>2d6 slashing</td><td>Heavy, two-handed</td></tr>
+                        <tr><td>Shortbow</td><td>1d6 piercing</td><td>Ammunition (80/320), two-handed</td></tr>
+                        <tr><td>Longbow</td><td>1d8 piercing</td><td>Ammunition (150/600), heavy, two-handed</td></tr>
+                        <tr><td>Crossbow, hand</td><td>1d6 piercing</td><td>Ammunition (30/120), light, loading</td></tr>
+                        <tr><td>Battleaxe</td><td>1d8 slashing</td><td>Versatile (1d10)</td></tr>
+                    </table>
+                </div>
+                <div class="ref-col">
+                    <h3>Armor</h3>
+                    <table>
+                        <tr><th>Armor</th><th>AC</th><th>Strength</th><th>Stealth</th><th>Cost</th></tr>
+                        <tr><td>Padded</td><td>11 + Dex</td><td>-</td><td>Disadvantage</td><td>5 gp</td></tr>
+                        <tr><td>Leather</td><td>11 + Dex</td><td>-</td><td>-</td><td>10 gp</td></tr>
+                        <tr><td>Studded leather</td><td>12 + Dex</td><td>-</td><td>-</td><td>45 gp</td></tr>
+                        <tr><td>Chain shirt</td><td>13 + Dex (max 2)</td><td>-</td><td>-</td><td>50 gp</td></tr>
+                        <tr><td>Breastplate</td><td>14 + Dex (max 2)</td><td>-</td><td>-</td><td>400 gp</td></tr>
+                        <tr><td>Half plate</td><td>15 + Dex (max 2)</td><td>-</td><td>Disadvantage</td><td>750 gp</td></tr>
+                        <tr><td>Chain mail</td><td>16</td><td>Str 13</td><td>Disadvantage</td><td>75 gp</td></tr>
+                        <tr><td>Plate</td><td>18</td><td>Str 15</td><td>Disadvantage</td><td>1,500 gp</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="ref-row">
+                <div class="ref-col">
+                    <h3>Common Magic Items (d20)</h3>
+                    <table>
+                        <tr><th>Roll</th><th>Item</th><th>Rarity</th></tr>
+                        <tr><td>1-3</td><td>Potion of Healing</td><td>Common</td></tr>
+                        <tr><td>4-6</td><td>Scroll of Identify</td><td>Common</td></tr>
+                        <tr><td>7-9</td><td>+1 Weapon</td><td>Uncommon</td></tr>
+                        <tr><td>10-12</td><td>Ring of Protection</td><td>Rare</td></tr>
+                        <tr><td>13-15</td><td>Cloak of Elvenkind</td><td>Uncommon</td></tr>
+                        <tr><td>16-18</td><td>Wand of Magic Missiles</td><td>Uncommon</td></tr>
+                        <tr><td>19-20</td><td>Bag of Holding</td><td>Uncommon</td></tr>
+                    </table>
+                </div>
+                <div class="ref-col">
+                    <h3>Common Transports</h3>
+                    <table>
+                        <tr><th>Transport</th><th>Speed</th><th>Carrying Capacity</th><th>Cost per Mile</th></tr>
+                        <tr><td>Horse</td><td>60 ft.</td><td>480 lb.</td><td>2 sp</td></tr>
+                        <tr><td>Draft horse</td><td>40 ft.</td><td>540 lb.</td><td>1 sp</td></tr>
+                        <tr><td>Wagon</td><td>30 ft.</td><td>4,000 lb.</td><td>3 sp</td></tr>
+                        <tr><td>Carriage</td><td>40 ft.</td><td>600 lb.</td><td>3 sp</td></tr>
+                        <tr><td>Rowboat</td><td>15 ft.</td><td>3 passengers</td><td>1 sp</td></tr>
+                        <tr><td>Sailing ship</td><td>24 mi/day</td><td>20 passengers</td><td>1 gp</td></tr>
+                        <tr><td>Airship</td><td>80 mi/day</td><td>20 passengers</td><td>2 gp</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="ref-row">
+                <div class="ref-col">
+                    <h3>Combat Ratings (CR) and XP</h3>
+                    <table>
+                        <tr><th>CR</th><th>XP</th><th>CR</th><th>XP</th></tr>
+                        <tr><td>0</td><td>10</td><td>5</td><td>1,800</td></tr>
+                        <tr><td>1/8</td><td>25</td><td>6</td><td>2,300</td></tr>
+                        <tr><td>1/4</td><td>50</td><td>7</td><td>2,900</td></tr>
+                        <tr><td>1/2</td><td>100</td><td>8</td><td>3,900</td></tr>
+                        <tr><td>1</td><td>200</td><td>9</td><td>5,000</td></tr>
+                        <tr><td>2</td><td>450</td><td>10</td><td>5,900</td></tr>
+                        <tr><td>3</td><td>700</td><td>11</td><td>7,200</td></tr>
+                        <tr><td>4</td><td>1,100</td><td>12</td><td>8,400</td></tr>
+                    </table>
+                </div>
+                <div class="ref-col">
+                    <h3>Leveling and XP</h3>
+                    <table>
+                        <tr><th>Level</th><th>XP Required</th><th>Proficiency Bonus</th></tr>
+                        <tr><td>1</td><td>0</td><td>+2</td></tr>
+                        <tr><td>2</td><td>300</td><td>+2</td></tr>
+                        <tr><td>3</td><td>900</td><td>+2</td></tr>
+                        <tr><td>4</td><td>2,700</td><td>+2</td></tr>
+                        <tr><td>5</td><td>6,500</td><td>+3</td></tr>
+                        <tr><td>6</td><td>14,000</td><td>+3</td></tr>
+                        <tr><td>7</td><td>23,000</td><td>+3</td></tr>
+                        <tr><td>8</td><td>34,000</td><td>+3</td></tr>
+                        <tr><td>9</td><td>48,000</td><td>+4</td></tr>
+                        <tr><td>10</td><td>64,000</td><td>+4</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="ref-row">
+                <div class="ref-col">
+                    <h3>Ability Checks DC</h3>
+                    <table>
+                        <tr><th>Difficulty</th><th>DC</th><th>Example</th></tr>
+                        <tr><td>Very Easy</td><td>5</td><td>Climb a knotted rope</td></tr>
+                        <tr><td>Easy</td><td>10</td><td>Convince a friendly guard</td></tr>
+                        <tr><td>Medium</td><td>15</td><td>Leap across a 15-foot chasm</td></tr>
+                        <tr><td>Hard</td><td>20</td><td>Swim against a strong current</td></tr>
+                        <tr><td>Very Hard</td><td>25</td><td>Open a magically sealed door</td></tr>
+                        <tr><td>Nearly Impossible</td><td>30</td><td>Track a creature across solid stone</td></tr>
+                    </table>
+                </div>
+                <div class="ref-col">
+                    <h3>Combat Actions</h3>
+                    <table>
+                        <tr><th>Action</th><th>Description</th></tr>
+                        <tr><td>Attack</td><td>Make one melee or ranged attack</td></tr>
+                        <tr><td>Cast a Spell</td><td>Cast a spell with a casting time of 1 action</td></tr>
+                        <tr><td>Dash</td><td>Move up to your speed</td></tr>
+                        <tr><td>Disengage</td><td>Your movement doesn't provoke opportunity attacks</td></tr>
+                        <tr><td>Dodge</td><td>Impose disadvantage on attacks against you</td></tr>
+                        <tr><td>Help</td><td>Grant an ally advantage on their next check or attack</td></tr>
+                        <tr><td>Hide</td><td>Make a Dexterity (Stealth) check to hide</td></tr>
+                        <tr><td>Ready</td><td>Prepare an action to trigger later</td></tr>
+                        <tr><td>Use an Object</td><td>Interact with a second object on your turn</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="ref-row">
+                <div class="ref-col">
+                    <h3>Conditions</h3>
+                    <table>
+                        <tr><th>Condition</th><th>Effect</th></tr>
+                        <tr><td>Blinded</td><td>Disadvantage on attacks, advantage on attacks against</td></tr>
+                        <tr><td>Charmed</td><td>Can't attack charmer, charmer has social advantage</td></tr>
+                        <tr><td>Frightened</td><td>Disadvantage on checks/attacks while source in sight</td></tr>
+                        <tr><td>Grappled</td><td>Speed 0, ends if grappler incapacitated</td></tr>
+                        <tr><td>Paralyzed</td><td>Incapacitated, auto fail Str/Dex saves, crits if hit</td></tr>
+                        <tr><td>Poisoned</td><td>Disadvantage on attack rolls and ability checks</td></tr>
+                        <tr><td>Prone</td><td>Disadvantage on attacks, melee advantage against</td></tr>
+                        <tr><td>Stunned</td><td>Incapacitated, auto fail Str/Dex saves, advantage against</td></tr>
+                    </table>
+                </div>
+                <div class="ref-col">
+                    <h3>Travel Pace</h3>
+                    <table>
+                        <tr><th>Pace</th><th>Minute</th><th>Hour</th><th>Day</th><th>Effect</th></tr>
+                        <tr><td>Fast</td><td>400 ft</td><td>4 miles</td><td>30 miles</td><td>-5 Passive Perception</td></tr>
+                        <tr><td>Normal</td><td>300 ft</td><td>3 miles</td><td>24 miles</td><td>-</td></tr>
+                        <tr><td>Slow</td><td>200 ft</td><td>2 miles</td><td>18 miles</td><td>Able to stealth</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="ref-row">
+                <div class="ref-col">
+                    <h3>Spell Slots per Level</h3>
+                    <table>
+                        <tr><th>Class Level</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th></tr>
+                        <tr><td>1st</td><td>2</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>3rd</td><td>4</td><td>2</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>5th</td><td>4</td><td>3</td><td>2</td><td>-</td><td>-</td></tr>
+                        <tr><td>7th</td><td>4</td><td>3</td><td>3</td><td>1</td><td>-</td></tr>
+                        <tr><td>9th</td><td>4</td><td>3</td><td>3</td><td>3</td><td>1</td></tr>
+                    </table>
+                </div>
+                <div class="ref-col">
+                    <h3>Cover</h3>
+                    <table>
+                        <tr><th>Cover</th><th>Effect</th></tr>
+                        <tr><td>Half Cover</td><td>+2 bonus to AC and Dexterity saving throws</td></tr>
+                        <tr><td>Three-Quarters Cover</td><td>+5 bonus to AC and Dexterity saving throws</td></tr>
+                        <tr><td>Total Cover</td><td>Can't be targeted directly by attacks or spells</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="dice" class="tab-content" style="display: none;">
+            <h2>Dice Roller</h2>
+            <div class="dice-roller">
+                <div class="dice" data-type="4">D4 <span id="badge-4" class="badge">0</span></div>
+                <div class="dice" data-type="6">D6 <span id="badge-6" class="badge">0</span></div>
+                <div class="dice" data-type="8">D8 <span id="badge-8" class="badge">0</span></div>
+                <div class="dice" data-type="10">D10 <span id="badge-10" class="badge">0</span></div>
+                <div class="dice" data-type="12">D12 <span id="badge-12" class="badge">0</span></div>
+                <div class="dice" data-type="20">D20 <span id="badge-20" class="badge">0</span></div>
+                <div class="dice" data-type="100">D100 <span id="badge-100" class="badge">0</span></div>
+            </div>
+            <div class="result" id="dice-result"></div>
+            <button id="roll-dice">Roll Dice</button>
+            <button id="roll-advantage">Roll Advantage</button>
+            <button id="roll-disadvantage">Roll Disadvantage</button>
+            <div id="dice-history" class="dice-history"></div>
+        </div>
+
+        <div id="combat" class="tab-content" style="display: none;">
+            <h2>Combat Tracker</h2>
+            <div>
+                <h3>Add Monster</h3>
+                <input type="text" id="monster-name" placeholder="Monster Name">
+                <input type="number" id="monster-initiative" placeholder="Initiative">
+                <input type="number" id="monster-hp" placeholder="HP">
+                <input type="number" id="monster-ac" placeholder="AC">
+                <button id="add-monster-btn">Add Monster</button>
+            </div>
+            <div>
+                <h3>Add Character</h3>
+                <input type="text" id="character-name" placeholder="Character Name">
+                <input type="number" id="initiative" placeholder="Initiative">
+                <input type="number" id="hp" placeholder="HP">
+                <input type="number" id="ac" placeholder="AC">
+                <button id="add-character-btn">Add Character</button>
+            </div>
+            <div id="combat-list"></div>
+            <button id="next-turn-btn">Next Turn</button>
+            <button id="clear-enemies-btn">Clear Enemies</button>
+            <button id="long-rest-btn">Long Rest</button>
+        </div>
+
+        <div id="npc" class="tab-content" style="display: none;">
+            <h2>NPC Generator</h2>
+            <div class="npc-generator">
+                <button onclick="generateNPC()">Generate NPC</button>
+                <div id="npc-result"></div>
+            </div>
+        </div>
+
+        <div id="loot" class="tab-content" style="display: none;">
+            <h2>Loot Generator</h2>
+            <div class="loot-generator">
+                <select id="loot-type">
+                    <option value="individual">Individual</option>
+                    <option value="hoard">Hoard</option>
+                </select>
+                <select id="challenge-rating">
+                    <option value="0-4">CR 0-4</option>
+                    <option value="5-10">CR 5-10</option>
+                    <option value="11-16">CR 11-16</option>
+                    <option value="17+">CR 17+</option>
+                </select>
+                <button id="generate-loot-btn">Generate Loot</button>
+                <div id="loot-result"></div>
+            </div>
+        </div>
+
+        <div id="weather" class="tab-content" style="display: none;">
+            <h2>Weather Generator</h2>
+            <div class="weather-generator">
+                <button onclick="generateWeather()">Generate Weather</button>
+                <div id="weather-result"></div>
+                <svg id="weather-svg" viewBox="0 0 100 100"></svg>
+            </div>
+        </div>
+
+        <div id="adventure" class="tab-content" style="display: block;">
+            <h2>Adventure Generator</h2>
+            <button onclick="generateStoryline()">Generate Storyline</button>
+            <div id="storyline-result"></div>
+            <div>
+                <label for="cr-level">CR Level:</label>
+                <input type="number" id="cr-level" value="1" min="1" max="20">
+                <button onclick="generateMap()">Generate Map</button>
+            </div>
+            <div id="map-result"></div>
+            <div id="layout-plan"></div>
+            <div id="xp-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const CELL_SIZE = 20;
+        const GRID_COLOR = "#e6f3ff";
+
+        function generateMap() {
+            const crLevel = parseInt(document.getElementById("cr-level").value);
+            const mapWidth = 40 * CELL_SIZE;
+            const mapHeight = 30 * CELL_SIZE;
+            const storyline = generateStoryline();
+            
+            let rooms, corridors;
+            if (storyline.mapType === "cave") {
+                [rooms, corridors] = generateCave(mapWidth, mapHeight);
+            } else {
+                rooms = generateRooms(mapWidth, mapHeight);
+                corridors = connectRooms(rooms);
+            }
+            
+            displayMap(mapWidth, mapHeight, rooms, corridors, storyline.mapType);
+            generateRoomContents(rooms, crLevel, storyline);
+        }
+
+        function generateStoryline() {
+            const storylines = [
+                {
+                    title: "The Lost Artifact",
+                    description: "An ancient artifact of immense power has been stolen from the city's museum. The party must track down the thieves and recover the artifact before it falls into the wrong hands.",
+                    mapType: "dungeon"
+                },
+                {
+                    title: "The Haunted Manor",
+                    description: "A wealthy noble has hired the party to investigate strange occurrences in their recently inherited manor. The group must uncover the dark secrets hidden within its walls.",
+                    mapType: "manor"
+                },
+                {
+                    title: "The Dragon's Lair",
+                    description: "A young dragon has been terrorizing nearby villages. The party is tasked with finding its lair and either slaying the beast or negotiating its departure from the region.",
+                    mapType: "cave"
+                },
+                {
+                    title: "The Cursed Village",
+                    description: "A once-thriving village has fallen under a mysterious curse. The party must break the curse and save the villagers before it's too late.",
+                    mapType: "dungeon"
+                },
+                {
+                    title: "The Elemental Rift",
+                    description: "A rift to the elemental planes has opened, causing chaos in the surrounding area. The party must close the rift and deal with the elemental creatures that have crossed over.",
+                    mapType: "cave"
+                },
+                {
+                    title: "The Mountain Monastery",
+                    description: "A secluded monastery in the mountains has gone silent. The party must brave treacherous peaks to uncover what has befallen the monks and restore communication.",
+                    mapType: "dungeon"
+                },
+                {
+                    title: "The Desert Mirage",
+                    description: "A desert tribe speaks of a magical oasis that appears and disappears. The party must navigate the harsh sands to find this oasis and uncover its secrets.",
+                    mapType: "cave"
+                },
+                {
+                    title: "The Sunken City",
+                    description: "A coastal town is slowly sinking into the sea due to an ancient curse. The party must explore underwater ruins to find a way to save the town.",
+                    mapType: "dungeon"
+                },
+                {
+                    title: "The Clockwork Citadel",
+                    description: "A long-lost citadel powered by steam and gears has been uncovered. The party must reactivate its systems and uncover the fate of its creators.",
+                    mapType: "dungeon"
+                },
+                {
+                    title: "The Living Dungeon",
+                    description: "A sentient dungeon is 'eating' adventurers who enter it. The party must navigate its ever-changing halls and communicate with the dungeon itself to stop its hunger.",
+                    mapType: "dungeon"
+                }
+            ];
+
+            return storylines[Math.floor(Math.random() * storylines.length)];
+        }
+
+        function generateRooms(width, height) {
+            const numRooms = Math.floor(Math.random() * 6) + 5; // 5-10 rooms
+            const rooms = [];
+
+            for (let i = 0; i < numRooms; i++) {
+                const roomWidth = Math.floor(Math.random() * 4 + 3) * CELL_SIZE;
+                const roomHeight = Math.floor(Math.random() * 4 + 3) * CELL_SIZE;
+                const x = Math.floor(Math.random() * (width - roomWidth) / CELL_SIZE) * CELL_SIZE;
+                const y = Math.floor(Math.random() * (height - roomHeight) / CELL_SIZE) * CELL_SIZE;
+
+                const newRoom = { x, y, width: roomWidth, height: roomHeight, number: i + 1 };
+
+                if (!rooms.some(room => roomsOverlap(newRoom, room))) {
+                    rooms.push(newRoom);
+                }
+            }
+
+            return rooms;
+        }
+
+        function roomsOverlap(room1, room2) {
+            return (room1.x < room2.x + room2.width &&
+                    room1.x + room1.width > room2.x &&
+                    room1.y < room2.y + room2.height &&
+                    room1.y + room1.height > room2.y);
+        }
+
+        function connectRooms(rooms) {
+            const corridors = [];
+
+            for (let i = 0; i < rooms.length - 1; i++) {
+                const room1 = rooms[i];
+                const room2 = rooms[i + 1];
+
+                const x1 = room1.x + Math.floor(room1.width / 2);
+                const y1 = room1.y + Math.floor(room1.height / 2);
+                const x2 = room2.x + Math.floor(room2.width / 2);
+                const y2 = room2.y + Math.floor(room2.height / 2);
+
+                corridors.push({ x1, y1, x2: x1, y2 });
+                corridors.push({ x1, y1: y2, x2, y2 });
+            }
+
+            return corridors;
+        }
+
+        function generateCave(width, height) {
+            // Implement cellular automata algorithm for cave generation
+            // This is a simplified version and can be expanded for more realistic caves
+            const grid = Array(height / CELL_SIZE).fill().map(() => Array(width / CELL_SIZE).fill(0));
+            
+            // Randomly fill the grid
+            for (let y = 0; y < grid.length; y++) {
+                for (let x = 0; x < grid[0].length; x++) {
+                    grid[y][x] = Math.random() < 0.45 ? 1 : 0;
+                }
+            }
+
+            // Apply cellular automata rules
+            for (let i = 0; i < 4; i++) {
+                grid.forEach((row, y) => {
+                    row.forEach((cell, x) => {
+                        const neighbors = countAliveNeighbors(grid, x, y);
+                        if (cell === 1 && neighbors < 4) grid[y][x] = 0;
+                        else if (cell === 0 && neighbors > 4) grid[y][x] = 1;
+                    });
+                });
+            }
+
+            // Convert grid to rooms and corridors
+            const rooms = [];
+            const corridors = [];
+
+            grid.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    if (cell === 1) {
+                        rooms.push({
+                            x: x * CELL_SIZE,
+                            y: y * CELL_SIZE,
+                            width: CELL_SIZE,
+                            height: CELL_SIZE,
+                            number: rooms.length + 1
+                        });
+                    }
+                });
+            });
+
+            return [rooms, corridors];
+        }
+
+        function countAliveNeighbors(grid, x, y) {
+            let count = 0;
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    const newY = y + i;
+                    const newX = x + j;
+                    if (newY >= 0 && newY < grid.length && newX >= 0 && newX < grid[0].length) {
+                        count += grid[newY][newX];
+                    } else {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        function displayMap(width, height, rooms, corridors, mapType) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("width", width);
+            svg.setAttribute("height", height);
+
+            // Draw grid
+            for (let x = 0; x <= width; x += CELL_SIZE) {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", x);
+                line.setAttribute("y1", 0);
+                line.setAttribute("x2", x);
+                line.setAttribute("y2", height);
+                line.setAttribute("stroke", GRID_COLOR);
+                line.setAttribute("stroke-width", 1);
+                svg.appendChild(line);
+            }
+            for (let y = 0; y <= height; y += CELL_SIZE) {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", 0);
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", width);
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke", GRID_COLOR);
+                line.setAttribute("stroke-width", 1);
+                svg.appendChild(line);
+            }
+
+            // Draw rooms
+            rooms.forEach(room => {
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("x", room.x);
+                rect.setAttribute("y", room.y);
+                rect.setAttribute("width", room.width);
+                rect.setAttribute("height", room.height);
+                rect.setAttribute("fill", "white");
+                rect.setAttribute("stroke", "black");
+                svg.appendChild(rect);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", room.x + room.width / 2);
+                text.setAttribute("y", room.y + room.height / 2);
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("dominant-baseline", "central");
+                text.textContent = room.number;
+                svg.appendChild(text);
+            });
+
+            // Draw corridors
+            if (mapType !== "cave") {
+                corridors.forEach(corridor => {
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", corridor.x1);
+                    line.setAttribute("y1", corridor.y1);
+                    line.setAttribute("x2", corridor.x2);
+                    line.setAttribute("y2", corridor.y2);
+                    line.setAttribute("stroke", "black");
+                    line.setAttribute("stroke-width", 2);
+                    svg.appendChild(line);
+                });
+            }
+
+            document.getElementById("map-result").innerHTML = "";
+            document.getElementById("map-result").appendChild(svg);
+        }
+
+        function generateRoomContents(rooms, crLevel, storyline) {
+            const layoutPlan = document.getElementById("layout-plan");
+            layoutPlan.innerHTML = `<h3>${storyline.title}</h3><p>${storyline.description}</p>`;
+
+            rooms.forEach(room => {
+                const roomDetails = document.createElement("div");
+                roomDetails.className = "room-contents";
+                roomDetails.innerHTML = `<h4>Room ${room.number}</h4>`;
+
+                const objects = generateObjects();
+                const monsters = generateMonsters(crLevel);
+                const items = generateItems();
+                const npcs = generateNPCs();
+
+                if (objects.length > 0) roomDetails.innerHTML += `<p><strong>Objects:</strong> ${objects.join(", ")}</p>`;
+                if (monsters.length > 0) roomDetails.innerHTML += `<p><strong>Monsters:</strong> ${monsters.join(", ")}</p>`;
+                if (items.length > 0) roomDetails.innerHTML += `<p><strong>Items:</strong> ${items.join(", ")}</p>`;
+                if (npcs.length > 0) roomDetails.innerHTML += `<p><strong>NPCs:</strong> ${npcs.join(", ")}</p>`;
+
+                layoutPlan.appendChild(roomDetails);
+            });
+        }
+
+        function generateObjects() {
+            const objects = ["Table", "Chair", "Bookshelf", "Chest", "Bed", "Desk", "Wardrobe", "Fireplace", "Statue", "Painting"];
+            return Array(Math.floor(Math.random() * 3) + 1).fill().map(() => objects[Math.floor(Math.random() * objects.length)]);
+        }
+
+        function generateMonsters(crLevel) {
+            const monsters = {
+                easy: ["Goblin", "Kobold", "Skeleton", "Zombie"],
+                medium: ["Orc", "Wolf", "Ghoul", "Hobgoblin"],
+                hard: ["Ogre", "Werewolf", "Troll", "Manticore"]
+            };
+            const difficulty = crLevel <= 3 ? "easy" : crLevel <= 7 ? "medium" : "hard";
+            return Array(Math.floor(Math.random() * 2)).fill().map(() => {
+                const monster = monsters[difficulty][Math.floor(Math.random() * monsters[difficulty].length)];
+                return `${monster} (CR ${crLevel})`;
+            });
+        }
+
+        function generateItems() {
+            const items = ["Potion of Healing", "Scroll of Identify", "Gold coins", "Gemstones", "Magic wand", "Enchanted sword", "Ancient tome", "Mysterious key"];
+            return Array(Math.floor(Math.random() * 2)).fill().map(() => items[Math.floor(Math.random() * items.length)]);
+        }
+
+        function generateNPCs() {
+            const npcs = ["Merchant", "Prisoner", "Guard", "Scholar", "Refugee", "Spy", "Noble", "Priest"];
+            return Math.random() < 0.2 ? [npcs[Math.floor(Math.random() * npcs.length)]] : []; // 20% chance of an NPC
+        }
+
+        let combatants = [];
+        let currentTurn = 0;
+
+        function addMonster() {
+            const name = document.getElementById("monster-name").value;
+            const initiative = parseInt(document.getElementById("monster-initiative").value);
+            const hp = parseInt(document.getElementById("monster-hp").value);
+            const ac = parseInt(document.getElementById("monster-ac").value);
+
+            if (name && !isNaN(initiative) && !isNaN(hp) && !isNaN(ac)) {
+                combatants.push({ name, initiative, hp, maxHp: hp, ac, type: 'monster' });
+                combatants.sort((a, b) => b.initiative - a.initiative);
+                updateCombatList();
+                clearMonsterInputs();
+            } else {
+                alert("Please fill in all fields with valid values.");
+            }
+        }
+
+        function addCharacter() {
+            const name = document.getElementById("character-name").value;
+            const initiative = parseInt(document.getElementById("initiative").value);
+            const hp = parseInt(document.getElementById("hp").value);
+            const ac = parseInt(document.getElementById("ac").value);
+
+            if (name && !isNaN(initiative) && !isNaN(hp) && !isNaN(ac)) {
+                combatants.push({ name, initiative, hp, maxHp: hp, ac, type: 'character' });
+                combatants.sort((a, b) => b.initiative - a.initiative);
+                updateCombatList();
+                clearCharacterInputs();
+            } else {
+                alert("Please fill in all fields with valid values.");
+            }
+        }
+
+        function updateCombatList() {
+            const list = document.getElementById("combat-list");
+            list.innerHTML = "";
+            combatants.forEach((combatant, index) => {
+                const div = document.createElement("div");
+                div.className = combatant.type + (combatant.hp <= 0 ? " deceased" : "");
+                div.innerHTML = `
+                    ${index === currentTurn ? "➤ " : ""}${combatant.name} 
+                    (Initiative: ${combatant.initiative}, 
+                    HP: <input type="number" value="${combatant.hp}" min="0" max="${combatant.maxHp}" 
+                        onchange="updateHP(${index}, this.value)"> / ${combatant.maxHp}, 
+                    AC: ${combatant.ac})
+                    <button onclick="toggleDeceased(${index})">Toggle Deceased</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updateHP(index, newHP) {
+            combatants[index].hp = parseInt(newHP);
+            updateCombatList();
+        }
+
+        function toggleDeceased(index) {
+            combatants[index].hp = combatants[index].hp <= 0 ? combatants[index].maxHp : 0;
+            updateCombatList();
+        }
+
+        function nextTurn() {
+            if (combatants.length > 0) {
+                currentTurn = (currentTurn + 1) % combatants.length;
+                updateCombatList();
+            }
+        }
+
+        function clearEnemies() {
+            combatants = combatants.filter(c => c.type === 'character');
+            currentTurn = 0;
+            updateCombatList();
+        }
+
+        function longRest() {
+            combatants.forEach(c => {
+                if (c.type === 'character') {
+                    c.hp = c.maxHp;
+                }
+            });
+            updateCombatList();
+        }
+
+        function clearMonsterInputs() {
+            document.getElementById("monster-name").value = "";
+            document.getElementById("monster-initiative").value = "";
+            document.getElementById("monster-hp").value = "";
+            document.getElementById("monster-ac").value = "";
+        }
+
+        function clearCharacterInputs() {
+            document.getElementById("character-name").value = "";
+            document.getElementById("initiative").value = "";
+            document.getElementById("hp").value = "";
+            document.getElementById("ac").value = "";
+        }
+
+        // Make sure this function is called when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up the default tab (rules)
+            openTab(null, 'rules');
+
+            // Add event listener for the generate map button
+            const generateMapBtn = document.getElementById('generate-map-btn');
+            if (generateMapBtn) {
+                generateMapBtn.addEventListener('click', generateMap);
+            } else {
+                console.warn("Element with ID 'generate-map-btn' not found");
+            }
+
+            // Initialize dice roller
+            initializeDiceRoller();
+
+            // Add event listeners for combat tracker
+            const addMonsterBtn = document.getElementById('add-monster-btn');
+            if (addMonsterBtn) {
+                addMonsterBtn.addEventListener('click', addMonster);
+            } else {
+                console.warn("Element with ID 'add-monster-btn' not found");
+            }
+
+            const addCharacterBtn = document.getElementById('add-character-btn');
+            if (addCharacterBtn) {
+                addCharacterBtn.addEventListener('click', addCharacter);
+            } else {
+                console.warn("Element with ID 'add-character-btn' not found");
+            }
+
+            const nextTurnBtn = document.getElementById('next-turn-btn');
+            if (nextTurnBtn) {
+                nextTurnBtn.addEventListener('click', nextTurn);
+            } else {
+                console.warn("Element with ID 'next-turn-btn' not found");
+            }
+
+            const clearEnemiesBtn = document.getElementById('clear-enemies-btn');
+            if (clearEnemiesBtn) {
+                clearEnemiesBtn.addEventListener('click', clearEnemies);
+            } else {
+                console.warn("Element with ID 'clear-enemies-btn' not found");
+            }
+
+            const longRestBtn = document.getElementById('long-rest-btn');
+            if (longRestBtn) {
+                longRestBtn.addEventListener('click', longRest);
+            } else {
+                console.warn("Element with ID 'long-rest-btn' not found");
+            }
+
+            // Add event listener for the generate loot button
+            const generateLootBtn = document.getElementById('generate-loot-btn');
+            if (generateLootBtn) {
+                generateLootBtn.addEventListener('click', generateLoot);
+            } else {
+                console.warn("Element with ID 'generate-loot-btn' not found");
+            }
+        });
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.style.display = "block";
+            } else {
+                console.warn(`Tab with ID '${tabName}' not found`);
+            }
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.className += " active";
+            }
+        }
+
+        function initializeDiceRoller() {
+            const diceElements = document.querySelectorAll('.dice');
+            diceElements.forEach(element => {
+                const type = parseInt(element.dataset.type);
+                element.addEventListener('click', () => incrementDice(type));
+            });
+
+            const rollButton = document.getElementById('roll-dice');
+            if (rollButton) {
+                rollButton.addEventListener('click', rollAllDice);
+            } else {
+                console.warn("Roll dice button not found");
+            }
+
+            const advantageButton = document.getElementById('roll-advantage');
+            if (advantageButton) {
+                advantageButton.addEventListener('click', rollAdvantage);
+            } else {
+                console.warn("Roll advantage button not found");
+            }
+
+            const disadvantageButton = document.getElementById('roll-disadvantage');
+            if (disadvantageButton) {
+                disadvantageButton.addEventListener('click', rollDisadvantage);
+            } else {
+                console.warn("Roll disadvantage button not found");
+            }
+        }
+
+        let diceCounts = {4: 0, 6: 0, 8: 0, 10: 0, 12: 0, 20: 0, 100: 0};
+
+        function incrementDice(type) {
+            diceCounts[type]++;
+            updateDiceBadge(type);
+        }
+
+        function updateDiceBadge(type) {
+            const badge = document.getElementById(`badge-${type}`);
+            if (badge) {
+                badge.textContent = diceCounts[type];
+            }
+        }
+
+        function rollDice(type, count) {
+            let total = 0;
+            for (let i = 0; i < count; i++) {
+                total += Math.floor(Math.random() * type) + 1;
+            }
+            return total;
+        }
+
+        function rollAllDice() {
+            let results = [];
+            for (let sides in diceCounts) {
+                sides = parseInt(sides);
+                if (diceCounts[sides] > 0) {
+                    let rolls = [];
+                    for (let i = 0; i < diceCounts[sides]; i++) {
+                        rolls.push(Math.floor(Math.random() * sides) + 1);
+                    }
+                    results.push(`d${sides}: ${rolls.join(", ")} (Sum: ${rolls.reduce((a, b) => a + b, 0)})`);
+                    diceCounts[sides] = 0;
+                    document.getElementById(`badge-${sides}`).innerText = 0;
+                }
+            }
+            const resultText = results.join("<br>");
+            document.getElementById("dice-result").innerHTML = resultText;
+            updateDiceHistory(resultText);
+        }
+
+        function rollAdvantage() {
+            const roll1 = rollDice(20, 1);
+            const roll2 = rollDice(20, 1);
+            const result = `Advantage Roll: ${Math.max(roll1, roll2)} (${roll1}, ${roll2})`;
+            document.getElementById('dice-result').textContent = result;
+            updateDiceHistory(result);
+        }
+
+        function rollDisadvantage() {
+            const roll1 = rollDice(20, 1);
+            const roll2 = rollDice(20, 1);
+            const result = `Disadvantage Roll: ${Math.min(roll1, roll2)} (${roll1}, ${roll2})`;
+            document.getElementById('dice-result').textContent = result;
+            updateDiceHistory(result);
+        }
+
+        function updateDiceHistory(result) {
+            const history = document.getElementById('dice-history');
+            const newEntry = document.createElement('p');
+            newEntry.innerHTML = result;
+            history.insertBefore(newEntry, history.firstChild);
+            if (history.children.length > 5) {
+                history.removeChild(history.lastChild);
+            }
+        }
+ 
+
+   
+        function generateNPC() {
+            const races = ["Human", "Elf", "Dwarf", "Halfling", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"];
+            const classes = ["Fighter", "Wizard", "Rogue", "Cleric", "Paladin", "Ranger", "Barbarian", "Monk", "Druid", "Warlock"];
+            const alignments = ["Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "True Neutral", "Chaotic Neutral", "Lawful Evil", "Neutral Evil", "Chaotic Evil"];
+            const traits = ["Brave", "Cautious", "Cheerful", "Suspicious", "Loyal", "Greedy", "Honest", "Deceitful", "Ambitious", "Lazy"];
+
+            const names = ["Aelar", "Bran", "Cael", "Dara", "Ely", "Finn", "Gwen", "Hale", "Ivy", "Jarek", "Kara", "Luna", "Mira", "Nara", "Oren", "Pike", "Quinn", "Rune", "Sera", "Tara", "Ula", "Vale", "Wren", "Xara", "Yara", "Zara", "Aric", "Bryn", "Cade", "Drake", "Eira", "Fael", "Gwyn", "Hera", "Iris", "Jade", "Kael", "Lira", "Mira", "Nora", "Oria", "Pike", "Quinn", "Rune", "Sera", "Tara", "Ula", "Vale", "Wren", "Xara", "Yara", "Zara"];
+            const sexes = ["Male", "Female", "Unknown"];
+            const npc = {
+                name: names[Math.floor(Math.random() * names.length)],
+                sex: sexes[Math.floor(Math.random() * sexes.length)],
+                race: races[Math.floor(Math.random() * races.length)],
+                class: classes[Math.floor(Math.random() * classes.length)],
+                alignment: alignments[Math.floor(Math.random() * alignments.length)],
+                trait: traits[Math.floor(Math.random() * traits.length)]
+            };
+
+            document.getElementById("npc-result").innerHTML = `
+                Name: ${npc.name}<br>
+                Sex: ${npc.sex}<br>
+                Race: ${npc.race}<br>
+                Class: ${npc.class}<br>
+                Alignment: ${npc.alignment}<br>
+                Personality Trait: ${npc.trait}
+            `;
+        }
+
+        function generateLoot() {
+            const lootType = document.getElementById("loot-type").value;
+            const cr = document.getElementById("challenge-rating").value;
+            let loot = "";
+
+            if (lootType === "individual") {
+                switch (cr) {
+                    case "0-4":
+                        loot = `${Math.floor(Math.random() * 100) + 1}d6 copper pieces`;
+                        break;
+                    case "5-10":
+                        loot = `${Math.floor(Math.random() * 100) + 1}d6 silver pieces`;
+                        break;
+                    case "11-16":
+                        loot = `${Math.floor(Math.random() * 100) + 1}d6 gold pieces`;
+                        break;
+                    case "17+":
+                        loot = `${Math.floor(Math.random() * 100) + 1}d6 platinum pieces`;
+                        break;
+                }
+            } else {
+                switch (cr) {
+                    case "0-4":
+                        loot = `${Math.floor(Math.random() * 1000) + 1} copper pieces, ${Math.floor(Math.random() * 100) + 1} silver pieces`;
+                        break;
+                    case "5-10":
+                        loot = `${Math.floor(Math.random() * 1000) + 1} silver pieces, ${Math.floor(Math.random() * 100) + 1} gold pieces`;
+                        break;
+                    case "11-16":
+                        loot = `${Math.floor(Math.random() * 1000) + 1} gold pieces, ${Math.floor(Math.random() * 100) + 1} platinum pieces`;
+                        break;
+                    case "17+":
+                        loot = `${Math.floor(Math.random() * 1000) + 1} gold pieces, ${Math.floor(Math.random() * 100) + 1} platinum pieces, ${generateMagicItem(cr)}`;
+                        break;
+                }
+            }
+
+            document.getElementById("loot-result").innerHTML = `${loot}<br>${generateMagicItem(cr)}`;
+        }
+
+        function generateMagicItem(cr) {
+            const commonItems = ["Potion of Healing", "Scroll of Identify", "Spell Scroll (Cantrip)", "Spell Scroll (1st level)"];
+            const uncommonItems = ["Potion of Greater Healing", "+1 Weapon", "Bag of Holding", "Wand of Magic Missiles"];
+            const rareItems = ["Potion of Superior Healing", "+2 Weapon", "Cloak of Elvenkind", "Ring of Evasion"];
+            const veryRareItems = ["Potion of Supreme Healing", "+3 Weapon", "Cloak of Invisibility", "Ring of Regeneration"];
+            const legendaryItems = ["Vorpal Sword", "Ring of Spell Turning", "Robe of the Archmagi", "Staff of the Magi"];
+
+            let items;
+            switch (cr) {
+                case "0-4":
+                    items = commonItems;
+                    break;
+                case "5-10":
+                    items = [...commonItems, ...uncommonItems];
+                    break;
+                case "11-16":
+                    items = [...uncommonItems, ...rareItems];
+                    break;
+                case "17+":
+                    items = [...rareItems, ...veryRareItems, ...legendaryItems];
+                    break;
+                default:
+                    items = commonItems;
+            }
+
+            return items[Math.floor(Math.random() * items.length)];
+        }
+
+        function generateWeather() {
+            const temperatures = ["Freezing", "Cold", "Cool", "Mild", "Warm", "Hot", "Scorching"];
+            const conditions = ["Clear", "Partly Cloudy", "Overcast", "Light Rain", "Heavy Rain", "Thunderstorm", "Snow", "Hail", "Fog"];
+            const windSpeeds = ["Calm", "Light Breeze", "Moderate Wind", "Strong Wind", "Gale", "Storm"];
+
+            const weather = {
+                temperature: temperatures[Math.floor(Math.random() * temperatures.length)],
+                condition: conditions[Math.floor(Math.random() * conditions.length)],
+                wind: windSpeeds[Math.floor(Math.random() * windSpeeds.length)]
+            };
+
+            document.getElementById("weather-result").innerHTML = `
+                Temperature: ${weather.temperature}<br>
+                Condition: ${weather.condition}<br>
+                Wind: ${weather.wind}
+            `;
+
+            updateWeatherSVG(weather.condition);
+        }
+
+        function updateWeatherSVG(condition) {
+            const svg = document.getElementById("weather-svg");
+            svg.innerHTML = "";
+
+            switch (condition) {
+                case "Clear":
+                    svg.innerHTML = '<circle cx="50" cy="50" r="20" fill="yellow" />';
+                    break;
+                case "Partly Cloudy":
+                    svg.innerHTML = `
+                        <circle cx="30" cy="30" r="15" fill="yellow" />
+                        <path d="M25 60 Q40 45 55 60 T85 60 Q70 80 55 80 T25 60" fill="lightgray" />
+                    `;
+                    break;
+                case "Overcast":
+                    svg.innerHTML = `
+                        <path d="M15 50 Q30 35 45 50 T75 50 Q60 70 45 70 T15 50" fill="gray" />
+                        <path d="M25 60 Q40 45 55 60 T85 60 Q70 80 55 80 T25 60" fill="lightgray" />
+                    `;
+                    break;
+                case "Light Rain":
+                    svg.innerHTML = `
+                        <path d="M25 40 Q40 25 55 40 T85 40 Q70 60 55 60 T25 40" fill="lightgray" />
+                        <line x1="30" y1="70" x2="28" y2="80" stroke="blue" stroke-width="2" />
+                        <line x1="50" y1="70" x2="48" y2="80" stroke="blue" stroke-width="2" />
+                        <line x1="70" y1="70" x2="68" y2="80" stroke="blue" stroke-width="2" />
+                    `;
+                    break;
+                case "Heavy Rain":
+                    svg.innerHTML = `
+                        <path d="M25 40 Q40 25 55 40 T85 40 Q70 60 55 60 T25 40" fill="gray" />
+                        <line x1="30" y1="70" x2="28" y2="80" stroke="blue" stroke-width="2" />
+                        <line x1="40" y1="70" x2="38" y2="80" stroke="blue" stroke-width="2" />
+                        <line x1="50" y1="70" x2="48" y2="80" stroke="blue" stroke-width="2" />
+                        <line x1="60" y1="70" x2="58" y2="80" stroke="blue" stroke-width="2" />
+                        <line x1="70" y1="70" x2="68" y2="80" stroke="blue" stroke-width="2" />
+                    `;
+                    break;
+                case "Thunderstorm":
+                    svg.innerHTML = `
+                        <path d="M25 40 Q40 25 55 40 T85 40 Q70 60 55 60 T25 40" fill="darkgray" />
+                        <polygon points="45,60 55,70 50,80 60,75" fill="yellow" />
+                        <line x1="30" y1="70" x2="28" y2="80" stroke="blue" stroke-width="2" />
+                        <line x1="70" y1="70" x2="68" y2="80" stroke="blue" stroke-width="2" />
+                    `;
+                    break;
+                case "Snow":
+                    svg.innerHTML = `
+                        <path d="M25 40 Q40 25 55 40 T85 40 Q70 60 55 60 T25 40" fill="lightgray" />
+                        <circle cx="30" cy="75" r="2" fill="white" />
+                        <circle cx="50" cy="75" r="2" fill="white" />
+                        <circle cx="70" cy="75" r="2" fill="white" />
+                        <circle cx="40" cy="85" r="2" fill="white" />
+                        <circle cx="60" cy="85" r="2" fill="white" />
+                    `;
+                    break;
+                case "Hail":
+                    svg.innerHTML = `
+                        <path d="M25 40 Q40 25 55 40 T85 40 Q70 60 55 60 T25 40" fill="gray" />
+                        <circle cx="30" cy="75" r="3" fill="lightblue" />
+                        <circle cx="50" cy="75" r="3" fill="lightblue" />
+                        <circle cx="70" cy="75" r="3" fill="lightblue" />
+                        <circle cx="40" cy="85" r="3" fill="lightblue" />
+                        <circle cx="60" cy="85" r="3" fill="lightblue" />
+                    `;
+                    break;
+                case "Fog":
+                    svg.innerHTML = `
+                        <rect x="10" y="40" width="80" height="10" fill="lightgray" opacity="0.7" />
+                        <rect x="5" y="55" width="90" height="10" fill="lightgray" opacity="0.7" />
+                        <rect x="15" y="70" width="70" height="10" fill="lightgray" opacity="0.7" />
+                    `;
+                    break;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all tab content elements
+            var tabContents = document.getElementsByClassName('tab-content');
+            
+            // Hide all tab contents except the rules tab
+            for (var i = 0; i < tabContents.length; i++) {
+                if (tabContents[i].id !== 'rules') {
+                    tabContents[i].style.display = 'none';
+                }
+            }
+            
+            // Get all tab elements
+            var tabs = document.getElementsByClassName('tab');
+            
+            // Remove 'active' class from all tabs
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            // Add 'active' class to the rules tab
+            document.querySelector('.tab[onclick="openTab(event, \'rules\')"]').classList.add('active');
+        });
+</script>
+        <script>
+                        let lastTouchEnd = 0;
+
+                        document.addEventListener('touchstart', function(e) {
+                            if (e.touches.length > 1) {
+                                e.preventDefault();
+                            }
+                        }, { passive: false });
+
+                        document.addEventListener('touchend', function(e) {
+                            const now = (new Date()).getTime();
+                            if (now - lastTouchEnd <= 300) {
+                                e.preventDefault();
+                            }
+                            lastTouchEnd = now;
+                        }, false);
+
+                        document.addEventListener('touchmove', function(e) {
+                            if (e.touches.length > 1) {
+                                e.preventDefault();
+                            }
+                        }, { passive: false });
+                    </script></body></html>
