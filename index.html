@@ -194,6 +194,9 @@
             background-color: white;
             border: 1px solid #ccc;
             margin-bottom: 20px;
+            height: 601px;
+            width: 801px;
+            margin: auto;
         }
 
         .room-contents {
@@ -521,100 +524,567 @@
         const CELL_SIZE = 20;
         const GRID_COLOR = "#e6f3ff";
 
-        function generateMap() {
-            const crLevel = parseInt(document.getElementById("cr-level").value);
-            const mapWidth = 40 * CELL_SIZE;
-            const mapHeight = 30 * CELL_SIZE;
-            const storyline = generateStoryline();
+        const storylines = [
+    // Existing storylines
+    {
+        title: "The Lost Artifact",
+        description: "An ancient artifact of immense power has been stolen from the city's museum. The party must track down the thieves and recover the artifact before it falls into the wrong hands.",
+        mapType: "dungeon"
+    },
+    {
+        title: "The Haunted Manor",
+        description: "A wealthy noble has hired the party to investigate strange occurrences in their recently inherited manor. The group must uncover the dark secrets hidden within its walls.",
+        mapType: "manor"
+    },
+    {
+        title: "The Dragon's Lair",
+        description: "A young dragon has been terrorizing nearby villages. The party is tasked with finding its lair and either slaying the beast or negotiating its departure from the region.",
+        mapType: "cave"
+    },
+    {
+        title: "The Cursed Village",
+        description: "A once-thriving village has fallen under a mysterious curse. The party must break the curse and save the villagers before it's too late.",
+        mapType: "dungeon"
+    },
+    {
+        title: "The Elemental Rift",
+        description: "A rift to the elemental planes has opened, causing chaos in the surrounding area. The party must close the rift and deal with the elemental creatures that have crossed over.",
+        mapType: "cave"
+    },
+    {
+        title: "The Mountain Monastery",
+        description: "A secluded monastery in the mountains has gone silent. The party must brave treacherous peaks to uncover what has befallen the monks and restore communication.",
+        mapType: "dungeon"
+    },
+    {
+        title: "The Desert Mirage",
+        description: "A desert tribe speaks of a magical oasis that appears and disappears. The party must navigate the harsh sands to find this oasis and uncover its secrets.",
+        mapType: "cave"
+    },
+    {
+        title: "The Sunken City",
+        description: "A coastal town is slowly sinking into the sea due to an ancient curse. The party must explore underwater ruins to find a way to save the town.",
+        mapType: "dungeon"
+    },
+    {
+        title: "The Clockwork Citadel",
+        description: "A long-lost citadel powered by steam and gears has been uncovered. The party must reactivate its systems and uncover the fate of its creators.",
+        mapType: "dungeon"
+    },
+    {
+        title: "The Living Dungeon",
+        description: "A sentient dungeon is 'eating' adventurers who enter it. The party must navigate its ever-changing halls and communicate with the dungeon itself to stop its hunger.",
+        mapType: "dungeon"
+    },
+    
+    // New storylines
+    {
+        title: "The Fey Court's Bargain",
+        description: "The party is pulled into the Feywild and must navigate the dangerous politics of the Fey Court to fulfill a bargain and return home.",
+        mapType: "forest"
+    },
+    {
+        title: "The Underdark Expedition",
+        description: "A rare mineral vital for a cure to a plague is only found deep in the Underdark. The party must brave the dangers of the subterranean realm to retrieve it.",
+        mapType: "cave"
+    },
+    {
+        title: "The Pirate's Legacy",
+        description: "A map to a legendary pirate's treasure hoard has surfaced. The party must follow the clues, avoiding rival treasure hunters and deadly traps.",
+        mapType: "island"
+    },
+    {
+        title: "The Planar Prison Break",
+        description: "An innocent has been wrongly imprisoned in a planar prison. The party must break in, find the prisoner, and escape before the plane collapses.",
+        mapType: "dungeon"
+    },
+    {
+        title: "The Time-Lost City",
+        description: "A city trapped in a time loop is discovered. The party must solve the mystery causing the loop and free the city's inhabitants.",
+        mapType: "city"
+    },
+    {
+        title: "The Colossus Awakens",
+        description: "An ancient stone colossus has awakened and is rampaging across the land. The party must find a way to stop it without destroying the marvel of ancient engineering.",
+        mapType: "wilderness"
+    },
+    {
+        title: "The Mindflayer's Experiment",
+        description: "People are disappearing from a frontier town. The party discovers a hidden Mindflayer colony conducting bizarre experiments on the kidnapped townsfolk.",
+        mapType: "cave"
+    },
+    {
+        title: "The Airship Heist",
+        description: "A powerful artifact is being transported on a heavily guarded airship. The party must plan and execute a heist mid-flight to retrieve it.",
+        mapType: "airship"
+    },
+    {
+        title: "The Primordial Titan's Tomb",
+        description: "The sealed tomb of a primordial titan has been discovered. The party must navigate its challenges to prevent the titan's awakening or to secure its power.",
+        mapType: "dungeon"
+    },
+    {
+        title: "The Shadowfell Incursion",
+        description: "Shadows are leaking into the material plane, bringing darkness and despair. The party must travel to the Shadowfell to seal the breach between planes.",
+        mapType: "cave"
+    },
+    {
+        title: "The Merchant's Dilemma",
+        description: "A prominent merchant has gone missing, and their latest shipment of valuable goods has vanished. The party must investigate the town, questioning locals and searching for clues to unravel the mystery.",
+        mapType: "town"
+    },
+    {
+        title: "Festival of Lights",
+        description: "The annual Festival of Lights is approaching, but the town's sacred lantern has been stolen. The party must recover it before the festival begins, or risk the town falling into magical darkness.",
+        mapType: "town"
+    },
+    {
+        title: "Political Intrigue",
+        description: "The town's election is coming up, and one of the candidates has asked the party to help uncover a scandal involving their opponent. The party must navigate the town's political landscape, gathering evidence without getting caught.",
+        mapType: "town"
+    },
+    {
+        title: "The Alchemist's Request",
+        description: "A local alchemist needs rare ingredients for a powerful potion. The party must explore the town and its surroundings, bargaining with merchants and searching hidden corners to gather the necessary components.",
+        mapType: "town"
+    },
+    {
+        title: "Haunted Manor",
+        description: "A wealthy family's manor on the edge of town is said to be haunted. The party is hired to investigate the strange occurrences and put the restless spirits to rest.",
+        mapType: "town"
+    },
+    {
+        title: "Thieves' Guild Uprising",
+        description: "The local thieves' guild is planning a major heist that could destabilize the town's economy. The party must infiltrate the guild, gather information, and stop the heist before it's too late.",
+        mapType: "town"
+    },
+    {
+        title: "The Poisoned Well",
+        description: "People in town are falling ill, and the source seems to be the central well. The party must investigate the cause, find a cure, and prevent further contamination.",
+        mapType: "town"
+    }
+];
+
+function generateMap() {
+    const crLevel = parseInt(document.getElementById("cr-level").value);
+    const mapWidth = 800;
+    const mapHeight = 600;
+    const storyline = generateStoryline();
+    
+    if (storyline.mapType === "cave") {
+        const [grid, rooms, numberedLocations, secretAreas, encounters] = generateCave(mapWidth, mapHeight, crLevel);
+        displayCaveMap(mapWidth, mapHeight, grid, rooms, numberedLocations, secretAreas, encounters);
+        generateCaveContents(rooms, encounters, crLevel, storyline);
+    } else if (storyline.mapType === "town") {
+        const numBuildings = Math.floor(Math.random() * 10) + 15; // 15-25 buildings
+        const townData = generateTownMap(mapWidth, mapHeight, numBuildings);
+        displayTownMap(mapWidth, mapHeight, townData, storyline.mapType);
+        generateBuildingContents(townData.buildings, crLevel, storyline);
+    } else {
+        // Dungeon generation
+        const numRooms = Math.floor(Math.random() * 6) + 5; // 5-10 rooms
+        let asciiMap = generateASCIIMap(mapWidth / CELL_SIZE, mapHeight / CELL_SIZE, numRooms);
+        
+        // Validate and correct ASCII map
+        asciiMap = validateAndCorrectASCIIMap(asciiMap);
+        
+        // Convert ASCII map to rooms and corridors
+        const { rooms, corridors, doors } = convertASCIIMapToObjects(asciiMap);
+        
+        // Generate encounters for all rooms
+        const encounters = rooms.map(room => ({
+            room: room,
+            encounter: Math.random() < 0.7 ? generateEncounter(crLevel) : null // 70% chance for an encounter
+        }));
+        
+        // Generate other map elements
+        const numberedLocations = generateNumberedLocations(rooms, crLevel);
+        const secretDoors = generateSecretDoors(rooms);
+        
+        // Generate wandering monsters
+        const wanderingMonsters = generateWanderingMonsters(storyline.mapType, crLevel);
+        
+        // Display the map
+        displayMap(mapWidth, mapHeight, rooms, { corridors, doors }, storyline.mapType, numberedLocations, secretDoors);
+        
+        // Generate room contents
+        generateRoomContents(encounters, crLevel, storyline, wanderingMonsters);
+    }
+}
+
+// function displayTownMap(width, height, townData, mapType) {
+//     const { grid, buildings, doors, paths } = townData;
+//     const CELL_SIZE = 20;
+//     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+//     svg.setAttribute("width", width);
+//     svg.setAttribute("height", height);
+
+//     // Draw base terrain with grid
+//     for (let y = 0; y < grid.length; y++) {
+//         for (let x = 0; x < grid[y].length; x++) {
+//             const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+//             rect.setAttribute("x", x * CELL_SIZE);
+//             rect.setAttribute("y", y * CELL_SIZE);
+//             rect.setAttribute("width", CELL_SIZE);
+//             rect.setAttribute("height", CELL_SIZE);
+//             if (grid[y][x] === 1) {
+//                 rect.setAttribute("fill", "#D2B48C"); // Lighter brown for former cave walls
+//             } else if (grid[y][x] === 2) {
+//                 rect.setAttribute("fill", "#90EE90"); // Light green for grass
+//             } else if (grid[y][x] === 3) {
+//                 rect.setAttribute("fill", "#90EE90"); // Keep as grass, we'll overlay buildings later
+//             } else if (grid[y][x] === 4) {
+//                 rect.setAttribute("fill", "#4169E1"); // Royal Blue for lakes
+//             }
+//             rect.setAttribute("stroke", "#e6f3ff");
+//             rect.setAttribute("stroke-width", "1");
+//             svg.appendChild(rect);
+//         }
+//     }
+
+    
+
+//     // Draw buildings
+//     buildings.forEach((building, index) => {
+//         let shape;
+//         if (building.type === 'rectangle') {
+//             shape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+//             shape.setAttribute("x", building.x * CELL_SIZE);
+//             shape.setAttribute("y", building.y * CELL_SIZE);
+//             shape.setAttribute("width", building.width * CELL_SIZE);
+//             shape.setAttribute("height", building.height * CELL_SIZE);
+//         } else if (building.type === 'L-shape') {
+//             shape = document.createElementNS("http://www.w3.org/2000/svg", "path");
+//             const x = building.x * CELL_SIZE;
+//             const y = building.y * CELL_SIZE;
+//             const width = building.width * CELL_SIZE;
+//             const height = building.height * CELL_SIZE;
+//             const cutX = building.cutX * CELL_SIZE;
+//             const cutY = building.cutY * CELL_SIZE;
+//             shape.setAttribute("d", `M${x},${y} h${width} v${height} h-${width - cutX} v-${height - cutY} h-${cutX} z`);
+//         } else if (building.type === 'round') {
+//             shape = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+//             shape.setAttribute("cx", (building.x + building.radius) * CELL_SIZE);
+//             shape.setAttribute("cy", (building.y + building.radius) * CELL_SIZE);
+//             shape.setAttribute("r", building.radius * CELL_SIZE);
+//         }
+
+//         shape.setAttribute("fill", "#FFFFFF");
+//         shape.setAttribute("stroke", "black");
+//         shape.setAttribute("stroke-width", "2");
+//         svg.appendChild(shape);
+
+
+        
+//             // Draw doors
+//             doors.forEach(door => {
+//         const doorShape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+//         doorShape.setAttribute("x", door.x);
+//         doorShape.setAttribute("y", door.y);
+//         doorShape.setAttribute("width", door.width);
+//         doorShape.setAttribute("height", door.height);
+//         doorShape.setAttribute("fill", "#8B4513"); // Brown color for doors
+//         doorShape.setAttribute("stroke", "black");
+//         doorShape.setAttribute("stroke-width", "1");
+//         svg.appendChild(doorShape);
+//     });
+
+//             // Draw paths
+//             paths.forEach(([x, y]) => {
+//         const pathCell = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+//         pathCell.setAttribute("x", x * CELL_SIZE);
+//         pathCell.setAttribute("y", y * CELL_SIZE);
+//         pathCell.setAttribute("width", CELL_SIZE);
+//         pathCell.setAttribute("height", CELL_SIZE);
+//         pathCell.setAttribute("fill", "#808080"); // Grey color for paths
+//         svg.appendChild(pathCell);
+//     });
+
+    
+
+//         // Add building number
+//         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+//         text.setAttribute("x", building.x * CELL_SIZE + (building.type === 'round' ? building.radius * CELL_SIZE : building.width * CELL_SIZE / 2));
+//         text.setAttribute("y", building.y * CELL_SIZE + (building.type === 'round' ? building.radius * CELL_SIZE : building.height * CELL_SIZE / 2));
+//         text.setAttribute("text-anchor", "middle");
+//         text.setAttribute("dominant-baseline", "central");
+//         text.setAttribute("font-size", CELL_SIZE);
+//         text.textContent = index + 1;
+//         svg.appendChild(text);
+//     });
+
+
+
+//     document.getElementById("map-result").innerHTML = "";
+//     document.getElementById("map-result").appendChild(svg);
+// }
+
+function displayTownMap(width, height, townData, mapType) {
+    const { grid, buildings, doors, paths } = townData;
+    const CELL_SIZE = 20;
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+
+    // Draw base terrain with grid
+    for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[0].length; x++) {
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", x * CELL_SIZE);
+            rect.setAttribute("y", y * CELL_SIZE);
+            rect.setAttribute("width", CELL_SIZE);
+            rect.setAttribute("height", CELL_SIZE);
             
-            let rooms, corridors;
-            if (storyline.mapType === "cave") {
-                [rooms, corridors] = generateCave(mapWidth, mapHeight);
-            } else {
-                rooms = generateRooms(mapWidth, mapHeight);
-                corridors = connectRooms(rooms);
+            // Check if this cell is a path
+            const isPath = paths.some(([px, py]) => px === x && py === y);
+            
+            if (isPath) {
+                rect.setAttribute("fill", "#808080"); // Grey color for paths
+            } else if (grid[y][x] === 1) {
+                rect.setAttribute("fill", "#D2B48C"); // Lighter brown for former cave walls
+            } else if (grid[y][x] === 2) {
+                rect.setAttribute("fill", "#90EE90"); // Light green for grass
+            } else if (grid[y][x] === 3) {
+                rect.setAttribute("fill", "#90EE90"); // Keep as grass, we'll overlay buildings later
+            } else if (grid[y][x] === 4) {
+                rect.setAttribute("fill", "#4169E1"); // Royal Blue for lakes
+            }
+            rect.setAttribute("stroke", "#e6f3ff");
+            rect.setAttribute("stroke-width", "1");
+            svg.appendChild(rect);
+
+
+        }
+    }
+
+// Draw paths
+console.log("Drawing paths:", paths);
+    paths.forEach(([x, y]) => {
+        const pathCell = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        pathCell.setAttribute("x", x * CELL_SIZE);
+        pathCell.setAttribute("y", y * CELL_SIZE);
+        pathCell.setAttribute("width", CELL_SIZE);
+        pathCell.setAttribute("height", CELL_SIZE);
+        pathCell.setAttribute("fill", "#808080"); // Grey color for paths
+        pathCell.setAttribute("stroke", "black");
+        pathCell.setAttribute("stroke-width", "1");
+        svg.appendChild(pathCell);
+    });
+
+    // Draw buildings
+    buildings.forEach((building, index) => {
+        let shape;
+        if (building.type === 'rectangle') {
+            shape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            shape.setAttribute("x", building.x * CELL_SIZE);
+            shape.setAttribute("y", building.y * CELL_SIZE);
+            shape.setAttribute("width", building.width * CELL_SIZE);
+            shape.setAttribute("height", building.height * CELL_SIZE);
+        } else if (building.type === 'L-shape') {
+            shape = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const x = building.x * CELL_SIZE;
+            const y = building.y * CELL_SIZE;
+            const width = building.width * CELL_SIZE;
+            const height = building.height * CELL_SIZE;
+            const cutX = building.cutX * CELL_SIZE;
+            const cutY = building.cutY * CELL_SIZE;
+            shape.setAttribute("d", `M${x},${y} h${width} v${height} h-${width - cutX} v-${height - cutY} h-${cutX} z`);
+        } else if (building.type === 'round') {
+            shape = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            shape.setAttribute("cx", (building.x + building.radius) * CELL_SIZE);
+            shape.setAttribute("cy", (building.y + building.radius) * CELL_SIZE);
+            shape.setAttribute("r", building.radius * CELL_SIZE);
+        }
+
+        shape.setAttribute("fill", "#FFFFFF");
+        shape.setAttribute("stroke", "black");
+        shape.setAttribute("stroke-width", "2");
+        svg.appendChild(shape);
+
+        // Add building number
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", building.x * CELL_SIZE + (building.type === 'round' ? building.radius * CELL_SIZE : building.width * CELL_SIZE / 2));
+        text.setAttribute("y", building.y * CELL_SIZE + (building.type === 'round' ? building.radius * CELL_SIZE : building.height * CELL_SIZE / 2));
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "central");
+        text.setAttribute("font-size", CELL_SIZE);
+        text.textContent = index + 1;
+        svg.appendChild(text);
+    });
+
+    // Draw doors
+    doors.forEach(door => {
+        const doorShape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        doorShape.setAttribute("x", door.x);
+        doorShape.setAttribute("y", door.y);
+        doorShape.setAttribute("width", door.width);
+        doorShape.setAttribute("height", door.height);
+        doorShape.setAttribute("fill", "#8B4513"); // Brown color for doors
+        doorShape.setAttribute("stroke", "black");
+        doorShape.setAttribute("stroke-width", "1");
+        svg.appendChild(doorShape);
+    });
+
+    addLegendAndScale(svg, width, height, "town");
+
+
+    document.getElementById("map-result").innerHTML = "";
+    document.getElementById("map-result").appendChild(svg);
+}
+
+function generateLShapedBuildingBitmap(width, height, cutX, cutY) {
+    const bitmap = Array(height).fill().map(() => Array(width).fill(0));
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            if (x >= cutX || y >= cutY) {
+                bitmap[y][x] = 1;
+            }
+        }
+    }
+    return bitmap;
+}
+
+function generateBuildingContents(buildings, crLevel, storyline) {
+    const layoutPlan = document.getElementById("layout-plan");
+    layoutPlan.innerHTML = `<h3>${storyline.title}</h3><p>${storyline.description}</p>`;
+
+    buildings.forEach((building, index) => {
+        const buildingDetails = document.createElement("div");
+        buildingDetails.className = "room-contents";
+        
+        let content = `<strong>Building ${index + 1}:</strong><br>`;
+        
+        if (Math.random() < 0.3) { // 30% chance for an encounter
+            const encounter = generateEncounter(crLevel);
+            content += `Encounter: ${encounter.description}<br>`;
+        }
+        
+        if (Math.random() < 0.5) { // 50% chance for an NPC
+            const npc = generateNPC();
+            content += `NPC: ${npc.name} (${npc.race} ${npc.class})<br>`;
+        }
+        
+        if (Math.random() < 0.3) { // 30% chance for an item
+            const item = generateItem(crLevel);
+            content += `Item: ${item.description}<br>`;
+        }
+        
+        const buildingType = generateBuildingType();
+        content += `Building Type: ${buildingType}<br>`;
+        
+        buildingDetails.innerHTML = content;
+        layoutPlan.appendChild(buildingDetails);
+    });
+
+    // Add wandering encounters list
+    const wanderingEncounters = generateWanderingMonsters(storyline.mapType, crLevel);
+    const wanderingEncountersList = document.createElement("div");
+    wanderingEncountersList.innerHTML = `
+        <h3>Wandering Encounters (Roll d4)</h3>
+        <ol>
+            ${wanderingEncounters.map(encounter => `<li>${encounter}</li>`).join('')}
+        </ol>
+    `;
+    layoutPlan.appendChild(wanderingEncountersList);
+}
+
+function generateEncounter(crLevel) {
+    const monster = generateMonster(crLevel);
+    return {
+        monster: monster,
+        description: `A ${monster.name} (HP: ${monster.hp}, AC: ${monster.ac}, Attack: ${monster.attack})`
+    };
+}
+
+function generateStoryline() {
+    // Adjust the probability of getting a town map
+    const mapTypes = ["dungeon", "cave", "town"];
+    const randomMapType = mapTypes[Math.floor(Math.random() * mapTypes.length)];
+    
+    // Filter storylines based on the randomly selected map type
+    const eligibleStorylines = storylines.filter(story => story.mapType === randomMapType);
+    
+    // If no eligible storylines, default to a dungeon storyline
+    if (eligibleStorylines.length === 0) {
+        return storylines.find(story => story.mapType === "dungeon");
+    }
+    
+    // Return a random storyline from the eligible options
+    return eligibleStorylines[Math.floor(Math.random() * eligibleStorylines.length)];
+}
+
+function generateRooms(width, height, crLevel) {
+    const numRooms = Math.floor(Math.random() * 6) + 5; // 5-10 rooms
+    const rooms = [];
+
+    for (let i = 0; i < numRooms; i++) {
+        const roomType = Math.random();
+        let room;
+
+        if (roomType < 0.6) { // Rectangle
+            room = generateRectangularRoom(width, height);
+        } else if (roomType < 0.8) { // Circle
+            room = generateCircularRoom(width, height);
+        } else { // L-shape
+            room = generateLShapedRoom(width, height);
+        }
+
+        // Check if room is valid
+        if (room && typeof room.x === 'number' && typeof room.y === 'number' &&
+            !isNaN(room.x) && !isNaN(room.y) && 
+            !rooms.some(r => roomsOverlap(r, room))) {
+            
+            // Add encounter
+            if (Math.random() < 0.3) { // 30% chance for an encounter
+                room.encounter = generateEncounter(crLevel);
             }
             
-            displayMap(mapWidth, mapHeight, rooms, corridors, storyline.mapType);
-            generateRoomContents(rooms, crLevel, storyline);
-        }
-
-        function generateStoryline() {
-            const storylines = [
-                {
-                    title: "The Lost Artifact",
-                    description: "An ancient artifact of immense power has been stolen from the city's museum. The party must track down the thieves and recover the artifact before it falls into the wrong hands.",
-                    mapType: "dungeon"
-                },
-                {
-                    title: "The Haunted Manor",
-                    description: "A wealthy noble has hired the party to investigate strange occurrences in their recently inherited manor. The group must uncover the dark secrets hidden within its walls.",
-                    mapType: "manor"
-                },
-                {
-                    title: "The Dragon's Lair",
-                    description: "A young dragon has been terrorizing nearby villages. The party is tasked with finding its lair and either slaying the beast or negotiating its departure from the region.",
-                    mapType: "cave"
-                },
-                {
-                    title: "The Cursed Village",
-                    description: "A once-thriving village has fallen under a mysterious curse. The party must break the curse and save the villagers before it's too late.",
-                    mapType: "dungeon"
-                },
-                {
-                    title: "The Elemental Rift",
-                    description: "A rift to the elemental planes has opened, causing chaos in the surrounding area. The party must close the rift and deal with the elemental creatures that have crossed over.",
-                    mapType: "cave"
-                },
-                {
-                    title: "The Mountain Monastery",
-                    description: "A secluded monastery in the mountains has gone silent. The party must brave treacherous peaks to uncover what has befallen the monks and restore communication.",
-                    mapType: "dungeon"
-                },
-                {
-                    title: "The Desert Mirage",
-                    description: "A desert tribe speaks of a magical oasis that appears and disappears. The party must navigate the harsh sands to find this oasis and uncover its secrets.",
-                    mapType: "cave"
-                },
-                {
-                    title: "The Sunken City",
-                    description: "A coastal town is slowly sinking into the sea due to an ancient curse. The party must explore underwater ruins to find a way to save the town.",
-                    mapType: "dungeon"
-                },
-                {
-                    title: "The Clockwork Citadel",
-                    description: "A long-lost citadel powered by steam and gears has been uncovered. The party must reactivate its systems and uncover the fate of its creators.",
-                    mapType: "dungeon"
-                },
-                {
-                    title: "The Living Dungeon",
-                    description: "A sentient dungeon is 'eating' adventurers who enter it. The party must navigate its ever-changing halls and communicate with the dungeon itself to stop its hunger.",
-                    mapType: "dungeon"
-                }
-            ];
-
-            return storylines[Math.floor(Math.random() * storylines.length)];
-        }
-
-        function generateRooms(width, height) {
-            const numRooms = Math.floor(Math.random() * 6) + 5; // 5-10 rooms
-            const rooms = [];
-
-            for (let i = 0; i < numRooms; i++) {
-                const roomWidth = Math.floor(Math.random() * 4 + 3) * CELL_SIZE;
-                const roomHeight = Math.floor(Math.random() * 4 + 3) * CELL_SIZE;
-                const x = Math.floor(Math.random() * (width - roomWidth) / CELL_SIZE) * CELL_SIZE;
-                const y = Math.floor(Math.random() * (height - roomHeight) / CELL_SIZE) * CELL_SIZE;
-
-                const newRoom = { x, y, width: roomWidth, height: roomHeight, number: i + 1 };
-
-                if (!rooms.some(room => roomsOverlap(newRoom, room))) {
-                    rooms.push(newRoom);
-                }
+            // Add NPC
+            if (Math.random() < 0.2) { // 20% chance for an NPC
+                room.npc = generateNPC();
             }
-
-            return rooms;
+            
+            // Add item
+            if (Math.random() < 0.4) { // 40% chance for an item
+                room.item = generateItem(crLevel);
+            }
+            
+            // Add furnishing
+            room.furnishing = addFurnishings();
+            
+            rooms.push(room);
+        } else {
+            console.warn('Invalid room generated, skipping:', room);
+            i--; // Try again
         }
+    }
+
+    return rooms;
+}
+function generateRectangularRoom(width, height) {
+    const roomWidth = Math.floor(Math.random() * 4 + 3) * CELL_SIZE;
+    const roomHeight = Math.floor(Math.random() * 4 + 3) * CELL_SIZE;
+    const x = Math.floor(Math.random() * (width - roomWidth) / CELL_SIZE) * CELL_SIZE;
+    const y = Math.floor(Math.random() * (height - roomHeight) / CELL_SIZE) * CELL_SIZE;
+    return { x, y, width: roomWidth, height: roomHeight, type: 'rectangle' };
+}
+
+function generateCircularRoom(width, height) {
+    const radius = Math.floor(Math.random() * 2 + 2) * CELL_SIZE;
+    const x = Math.floor(Math.random() * (width - 2 * radius) / CELL_SIZE) * CELL_SIZE + radius;
+    const y = Math.floor(Math.random() * (height - 2 * radius) / CELL_SIZE) * CELL_SIZE + radius;
+    return { x, y, radius, type: 'circle' };
+}
+
+function generateLShapedRoom(width, height) {
+    const roomWidth = Math.floor(Math.random() * 3 + 3) * CELL_SIZE;
+    const roomHeight = Math.floor(Math.random() * 3 + 3) * CELL_SIZE;
+    const x = Math.floor(Math.random() * (width - roomWidth) / CELL_SIZE) * CELL_SIZE;
+    const y = Math.floor(Math.random() * (height - roomHeight) / CELL_SIZE) * CELL_SIZE;
+    const cutX = Math.floor(roomWidth / 2);
+    const cutY = Math.floor(roomHeight / 2);
+    return { x, y, width: roomWidth, height: roomHeight, cutX, cutY, type: 'L-shape' };
+}
 
         function roomsOverlap(room1, room2) {
             return (room1.x < room2.x + room2.width &&
@@ -624,66 +1094,863 @@
         }
 
         function connectRooms(rooms) {
-            const corridors = [];
+    const corridors = [];
+    const doors = [];
+    const DOOR_SIZE = CELL_SIZE / 2;
 
-            for (let i = 0; i < rooms.length - 1; i++) {
-                const room1 = rooms[i];
-                const room2 = rooms[i + 1];
+    for (let i = 0; i < rooms.length - 1; i++) {
+        const room1 = rooms[i];
+        const room2 = rooms[i + 1];
+        const [x1, y1] = getRoomCenter(room1);
+        const [x2, y2] = getRoomCenter(room2);
 
-                const x1 = room1.x + Math.floor(room1.width / 2);
-                const y1 = room1.y + Math.floor(room1.height / 2);
-                const x2 = room2.x + Math.floor(room2.width / 2);
-                const y2 = room2.y + Math.floor(room2.height / 2);
-
-                corridors.push({ x1, y1, x2: x1, y2 });
-                corridors.push({ x1, y1: y2, x2, y2 });
-            }
-
-            return corridors;
+        if (isNaN(x1) || isNaN(y1) || isNaN(x2) || isNaN(y2)) {
+            console.warn('Invalid room centers, skipping connection:', room1, room2);
+            continue;
         }
 
-        function generateCave(width, height) {
-            // Implement cellular automata algorithm for cave generation
-            // This is a simplified version and can be expanded for more realistic caves
-            const grid = Array(height / CELL_SIZE).fill().map(() => Array(width / CELL_SIZE).fill(0));
-            
-            // Randomly fill the grid
-            for (let y = 0; y < grid.length; y++) {
-                for (let x = 0; x < grid[0].length; x++) {
-                    grid[y][x] = Math.random() < 0.45 ? 1 : 0;
-                }
-            }
+        // Determine corridor endpoints
+        let startX, startY, endX, endY;
 
-            // Apply cellular automata rules
-            for (let i = 0; i < 4; i++) {
-                grid.forEach((row, y) => {
-                    row.forEach((cell, x) => {
-                        const neighbors = countAliveNeighbors(grid, x, y);
-                        if (cell === 1 && neighbors < 4) grid[y][x] = 0;
-                        else if (cell === 0 && neighbors > 4) grid[y][x] = 1;
-                    });
-                });
-            }
+        if (x1 < x2) {
+            startX = room1.x + room1.width;
+            endX = room2.x;
+        } else {
+            startX = room2.x + room2.width;
+            endX = room1.x;
+        }
 
-            // Convert grid to rooms and corridors
-            const rooms = [];
-            const corridors = [];
+        if (y1 < y2) {
+            startY = room1.y + room1.height;
+            endY = room2.y;
+        } else {
+            startY = room2.y + room2.height;
+            endY = room1.y;
+        }
 
-            grid.forEach((row, y) => {
-                row.forEach((cell, x) => {
-                    if (cell === 1) {
-                        rooms.push({
-                            x: x * CELL_SIZE,
-                            y: y * CELL_SIZE,
-                            width: CELL_SIZE,
-                            height: CELL_SIZE,
-                            number: rooms.length + 1
-                        });
-                    }
-                });
+        // Create horizontal corridor
+        if (startX !== endX) {
+            corridors.push({
+                x: Math.min(startX, endX),
+                y: y1 - CELL_SIZE / 2,
+                width: Math.abs(endX - startX),
+                height: CELL_SIZE
             });
 
-            return [rooms, corridors];
+            // Add doors at both ends of the horizontal corridor
+            doors.push({
+                x: startX - DOOR_SIZE / 2,
+                y: y1 - DOOR_SIZE / 2,
+                width: DOOR_SIZE,
+                height: DOOR_SIZE
+            });
+            doors.push({
+                x: endX - DOOR_SIZE / 2,
+                y: y1 - DOOR_SIZE / 2,
+                width: DOOR_SIZE,
+                height: DOOR_SIZE
+            });
+        }
+
+        // Create vertical corridor
+        if (startY !== endY) {
+            corridors.push({
+                x: x2 - CELL_SIZE / 2,
+                y: Math.min(startY, endY),
+                width: CELL_SIZE,
+                height: Math.abs(endY - startY)
+            });
+
+            // Add doors at both ends of the vertical corridor
+            doors.push({
+                x: x2 - DOOR_SIZE / 2,
+                y: startY - DOOR_SIZE / 2,
+                width: DOOR_SIZE,
+                height: DOOR_SIZE
+            });
+            doors.push({
+                x: x2 - DOOR_SIZE / 2,
+                y: endY - DOOR_SIZE / 2,
+                width: DOOR_SIZE,
+                height: DOOR_SIZE
+            });
+        }
+    }
+
+    return { corridors, doors };
+}
+
+function getRoomCenter(room) {
+    if (room.type === 'circle') {
+        return [room.x, room.y];
+    } else {
+        return [
+            room.x + Math.floor(room.width / 2),
+            room.y + Math.floor(room.height / 2)
+        ];
+    }
+}
+
+function generateSecretDoors(rooms) {
+    const secretDoors = [];
+    rooms.forEach((room, i) => {
+        if (Math.random() < 0.2) { // 20% chance for a secret door
+            const connectedRoom = rooms[Math.floor(Math.random() * rooms.length)];
+            if (connectedRoom !== room) {
+                const [x1, y1] = getRoomCenter(room);
+                const [x2, y2] = getRoomCenter(connectedRoom);
+                secretDoors.push({
+                    x1, y1, x2, y2
+                });
+            }
+        }
+    });
+    return secretDoors;
+}
+
+function generateCave(width, height, crLevel) {
+    const CELL_SIZE = 20;
+    const gridWidth = Math.floor(width / CELL_SIZE);
+    const gridHeight = Math.floor(height / CELL_SIZE);
+    let grid = Array(gridHeight).fill().map(() => Array(gridWidth).fill(1)); // Start with all walls
+
+    // Create initial random cave structure
+    for (let y = 1; y < gridHeight - 1; y++) {
+        for (let x = 1; x < gridWidth - 1; x++) {
+            if (Math.random() > 0.45) {
+                grid[y][x] = 0; // Open space
+            }
+        }
+    }
+
+    // Apply cellular automata rules
+    for (let i = 0; i < 4; i++) {
+        grid = applyCellularAutomata(grid);
+    }
+
+    // Ensure cave is enclosed with walls
+    for (let x = 0; x < gridWidth; x++) {
+        grid[0][x] = 1;
+        grid[gridHeight - 1][x] = 1;
+    }
+    for (let y = 0; y < gridHeight; y++) {
+        grid[y][0] = 1;
+        grid[y][gridWidth - 1] = 1;
+    }
+
+    // Identify small isolated wall areas and convert them to lakes
+    grid = convertSmallWallsToLakes(grid);
+
+    // Create entrances
+    const numEntrances = Math.floor(Math.random() * 3) + 1; // 1 to 3 entrances
+    for (let i = 0; i < numEntrances; i++) {
+        let entranceX, entranceY;
+        do {
+            if (Math.random() < 0.5) {
+                // Entrance on top or bottom
+                entranceX = Math.floor(Math.random() * (gridWidth - 2)) + 1;
+                entranceY = Math.random() < 0.5 ? 0 : gridHeight - 1;
+            } else {
+                // Entrance on left or right
+                entranceX = Math.random() < 0.5 ? 0 : gridWidth - 1;
+                entranceY = Math.floor(Math.random() * (gridHeight - 2)) + 1;
+            }
+        } while (grid[entranceY][entranceX] === 0); // Ensure we're creating an entrance in a wall
+
+        grid[entranceY][entranceX] = 0; // Create entrance
+        // Clear a path from the entrance
+        let clearY = entranceY === 0 ? 1 : (entranceY === gridHeight - 1 ? gridHeight - 2 : entranceY);
+        let clearX = entranceX === 0 ? 1 : (entranceX === gridWidth - 1 ? gridWidth - 2 : entranceX);
+        grid[clearY][clearX] = 0;
+    }
+
+    // Identify cave "rooms"
+    const rooms = identifyCaveRooms(grid);
+
+    // Generate encounters based on CR level
+    const encounterChance = 0.05 + (crLevel / 100); // 5% + 1% per CR level
+    const encounters = rooms.filter(() => Math.random() < encounterChance)
+        .map(() => generateEncounter(crLevel));
+
+    // Generate numbered locations
+    const numLocations = Math.min(10, Math.max(3, Math.floor(rooms.length / 5)));
+    const numberedLocations = [];
+    for (let i = 0; i < numLocations && i < rooms.length; i++) {
+        const room = rooms[Math.floor(Math.random() * rooms.length)];
+        if (room && typeof room.centerX === 'number' && typeof room.centerY === 'number') {
+            numberedLocations.push({
+                x: room.centerX,
+                y: room.centerY,
+                number: i + 1
+            });
+        }
+    }
+
+    // Generate secret areas
+    const numSecretAreas = Math.min(Math.floor(Math.random() * 3) + 1, rooms.length);
+    const secretAreas = [];
+    for (let i = 0; i < numSecretAreas; i++) {
+        const room = rooms[Math.floor(Math.random() * rooms.length)];
+        if (room && typeof room.centerX === 'number' && typeof room.centerY === 'number') {
+            secretAreas.push({
+                x: room.centerX,
+                y: room.centerY
+            });
+        }
+    }
+
+    return [grid, rooms, numberedLocations, secretAreas, encounters];
+}
+
+
+function applyCellularAutomata(grid) {
+    const newGrid = grid.map(row => [...row]);
+    for (let y = 1; y < grid.length - 1; y++) {
+        for (let x = 1; x < grid[0].length - 1; x++) {
+            const neighborWalls = countNeighborWalls(grid, x, y);
+            if (neighborWalls > 4) {
+                newGrid[y][x] = 1; // Create a wall
+            } else if (neighborWalls < 4) {
+                newGrid[y][x] = 0; // Create an open space
+            }
+        }
+    }
+    return newGrid;
+}
+
+function countNeighborWalls(grid, x, y) {
+    let count = 0;
+    for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+            if (i === 0 && j === 0) continue;
+            const newY = y + i;
+            const newX = x + j;
+            if (newY < 0 || newY >= grid.length || newX < 0 || newX >= grid[0].length) {
+                count++; // Count out-of-bounds as walls
+            } else if (grid[newY][newX] === 1) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+
+function convertSmallWallsToLakes(grid) {
+    const visited = Array(grid.length).fill().map(() => Array(grid[0].length).fill(false));
+    const LAKE_THRESHOLD = 10; // Adjust this value to change the size of areas that become lakes
+
+    function floodFill(x, y) {
+        if (x < 0 || y < 0 || x >= grid[0].length || y >= grid.length || visited[y][x] || grid[y][x] !== 1) {
+            return { size: 0, cells: [] };
+        }
+
+        visited[y][x] = true;
+        let result = { size: 1, cells: [[x, y]] };
+
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
+            const subResult = floodFill(x + dx, y + dy);
+            result.size += subResult.size;
+            result.cells.push(...subResult.cells);
+        });
+
+        return result;
+    }
+
+    for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[0].length; x++) {
+            if (!visited[y][x] && grid[y][x] === 1) {
+                const { size, cells } = floodFill(x, y);
+                if (size > 0 && size <= LAKE_THRESHOLD) {
+                    cells.forEach(([cx, cy]) => {
+                        grid[cy][cx] = 4; // 4 will represent lakes
+                    });
+                    console.log('Lake generated');  // Log when a lake is generated
+                }
+            }
+        }
+    }
+
+    return grid;
+}
+
+function identifyCaveRooms(grid) {
+    const rooms = [];
+    const visited = Array(grid.length).fill().map(() => Array(grid[0].length).fill(false));
+
+    function floodFill(x, y, roomId) {
+        if (x < 0 || y < 0 || x >= grid[0].length || y >= grid.length || visited[y][x] || grid[y][x] === 1) {
+            return { size: 0, minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+        }
+
+        visited[y][x] = true;
+        let result = { size: 1, minX: x, minY: y, maxX: x, maxY: y };
+
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
+            const subResult = floodFill(x + dx, y + dy, roomId);
+            result.size += subResult.size;
+            result.minX = Math.min(result.minX, subResult.minX);
+            result.minY = Math.min(result.minY, subResult.minY);
+            result.maxX = Math.max(result.maxX, subResult.maxX);
+            result.maxY = Math.max(result.maxY, subResult.maxY);
+        });
+
+        return result;
+    }
+
+    let roomId = 1;
+    for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[0].length; x++) {
+            if (!visited[y][x] && grid[y][x] === 0) {
+                const roomInfo = floodFill(x, y, roomId);
+                if (roomInfo.size >= 9) { // Minimum room size of 3x3
+                    rooms.push({
+                        id: roomId,
+                        centerX: Math.floor((roomInfo.minX + roomInfo.maxX) / 2),
+                        centerY: Math.floor((roomInfo.minY + roomInfo.maxY) / 2),
+                        size: roomInfo.size
+                    });
+                    roomId++;
+                }
+            }
+        }
+    }
+
+    return rooms;
+}
+
+function displayCaveMap(width, height, grid, rooms, numberedLocations, secretAreas, encounters) {
+    const CELL_SIZE = 20;
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+
+    // Draw cave
+    for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[0].length; x++) {
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", x * CELL_SIZE);
+            rect.setAttribute("y", y * CELL_SIZE);
+            rect.setAttribute("width", CELL_SIZE);
+            rect.setAttribute("height", CELL_SIZE);
+            rect.setAttribute("fill", grid[y][x] === 1 ? "#8B4513" : "#D2B48C"); // Wall : Open space
+            rect.setAttribute("stroke", grid[y][x] === 1 ? "#000000" : "#FFFFFF");
+            rect.setAttribute("stroke-width", "0.5");
+            svg.appendChild(rect);
+        }
+    }
+
+    // Draw room outlines
+    rooms.forEach(room => {
+        if (typeof room.centerX === 'number' && typeof room.centerY === 'number') {
+            const outline = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            outline.setAttribute("x", room.centerX * CELL_SIZE - CELL_SIZE);
+            outline.setAttribute("y", room.centerY * CELL_SIZE - CELL_SIZE);
+            outline.setAttribute("width", CELL_SIZE * 2);
+            outline.setAttribute("height", CELL_SIZE * 2);
+            outline.setAttribute("fill", "none");
+            outline.setAttribute("stroke", "rgba(255, 0, 0, 0.5)");
+            outline.setAttribute("stroke-width", "2");
+            svg.appendChild(outline);
+        }
+    });
+
+    // Draw numbered locations
+    numberedLocations.forEach(location => {
+        if (typeof location.x === 'number' && typeof location.y === 'number') {
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", location.x * CELL_SIZE + CELL_SIZE / 2);
+            circle.setAttribute("cy", location.y * CELL_SIZE + CELL_SIZE / 2);
+            circle.setAttribute("r", CELL_SIZE / 3);
+            circle.setAttribute("fill", "red");
+            svg.appendChild(circle);
+
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", location.x * CELL_SIZE + CELL_SIZE / 2);
+            text.setAttribute("y", location.y * CELL_SIZE + CELL_SIZE / 2);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "central");
+            text.setAttribute("fill", "white");
+            text.setAttribute("font-size", CELL_SIZE / 2);
+            text.textContent = location.number;
+            svg.appendChild(text);
+        }
+    });
+
+    // Draw secret areas
+    secretAreas.forEach(area => {
+        if (typeof area.x === 'number' && typeof area.y === 'number') {
+            const secretMark = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            secretMark.setAttribute("x", area.x * CELL_SIZE + CELL_SIZE / 2);
+            secretMark.setAttribute("y", area.y * CELL_SIZE + CELL_SIZE / 2);
+            secretMark.setAttribute("text-anchor", "middle");
+            secretMark.setAttribute("dominant-baseline", "central");
+            secretMark.setAttribute("fill", "purple");
+            secretMark.setAttribute("font-size", CELL_SIZE);
+            secretMark.textContent = "S";
+            svg.appendChild(secretMark);
+        }
+    });
+
+    addLegendAndScale(svg, width, height, "cave");
+
+
+    document.getElementById("map-result").innerHTML = "";
+    document.getElementById("map-result").appendChild(svg);
+
+    // Display encounter information
+    displayEncounterInfo(encounters);
+}
+
+function displayEncounterInfo(encounters) {
+    let encounterInfo = document.getElementById("encounter-info");
+    if (!encounterInfo) {
+        encounterInfo = document.createElement("div");
+        encounterInfo.id = "encounter-info";
+        document.getElementById("layout-plan").appendChild(encounterInfo);
+    }
+    encounterInfo.innerHTML = "<h3>Encounters:</h3>";
+    if (encounters.length === 0) {
+        encounterInfo.innerHTML += "<p>No encounters in this area.</p>";
+    } else {
+        encounters.forEach((encounter, index) => {
+            encounterInfo.innerHTML += `<p>Encounter ${index + 1}: ${encounter.description}</p>`;
+        });
+    }
+}
+
+function generateCaveContents(rooms, encounters, crLevel, storyline) {
+    const layoutPlan = document.getElementById("layout-plan");
+    layoutPlan.innerHTML = `<h3>${storyline.title}</h3><p>${storyline.description}</p>`;
+
+    rooms.forEach((room, index) => {
+        const roomDetails = document.createElement("div");
+        roomDetails.className = "room-contents";
+        
+        let content = `<strong>Area ${index + 1}:</strong><br>`;
+        
+        const encounter = encounters[index];
+        if (encounter) {
+            content += `Encounter: ${encounter.description}<br>`;
+        }
+        
+        if (Math.random() < 0.2) { // 20% chance for an NPC
+            const npc = generateNPC();
+            content += `NPC: ${npc.name} (${npc.race} ${npc.class})<br>`;
+        }
+        
+        if (Math.random() < 0.4) { // 40% chance for an item
+            const item = generateItem(crLevel);
+            content += `Item: ${item.description}<br>`;
+        }
+        
+        const furnishing = addCaveFurnishings();
+        content += `Feature: ${furnishing}<br>`;
+        
+        roomDetails.innerHTML = content;
+        layoutPlan.appendChild(roomDetails);
+    });
+
+    // Display encounter information
+    displayEncounterInfo(encounters);
+
+    // Generate and display wandering monster table
+    const wanderingMonsters = generateWanderingMonsters(storyline.mapType, crLevel);
+    const wanderingMonsterTable = document.createElement("div");
+    wanderingMonsterTable.innerHTML = `
+        <h3>Wandering Monsters (Roll d4)</h3>
+        <ol>
+            ${wanderingMonsters.map(monster => `<li>${monster}</li>`).join('')}
+        </ol>
+    `;
+    layoutPlan.appendChild(wanderingMonsterTable);
+}
+
+function addFurnishings() {
+    const furnishings = [
+        'table',
+        'bed',
+        'altar',
+        'chest',
+        'bookshelf',
+        'throne',
+        'statue',
+        'fountain',
+        'fireplace',
+        'weapon rack',
+        'torture device',
+        'magic circle',
+        'prison cell',
+        'alchemists lab',
+        'grand tapestry',
+        'mysterious contraption',
+        'ancient artifact',
+        'trapped floor',
+        'hidden compartment',
+        'glowing runes'
+    ];
+    return furnishings[Math.floor(Math.random() * furnishings.length)];
+}
+
+function addCaveFurnishings() {
+    const furnishings = [
+        'stalactites and stalagmites',
+        'underground stream',
+        'glowing mushrooms',
+        'ancient cave paintings',
+        'natural rock formation',
+        'small underground lake',
+        'crystal deposits',
+        'bat colony',
+        'underground hot spring',
+        'ancient ruins'
+    ];
+    return furnishings[Math.floor(Math.random() * furnishings.length)];
+}
+
+function displayMap(width, height, rooms, corridorsAndDoors, mapType, numberedLocations, secretDoors) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+
+    applyPerlinNoiseToMap(svg, width, height);
+
+    // Add a background rectangle
+    const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    background.setAttribute("width", width);
+    background.setAttribute("height", height);
+    background.setAttribute("fill", "#e0d8b0"); // Parchment-like color
+    svg.appendChild(background);
+
+    // Draw grid
+    for (let x = 0; x <= width; x += CELL_SIZE) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x);
+        line.setAttribute("y1", 0);
+        line.setAttribute("x2", x);
+        line.setAttribute("y2", height);
+        line.setAttribute("stroke", GRID_COLOR);
+        line.setAttribute("stroke-width", 0.5);
+        svg.appendChild(line);
+    }
+    for (let y = 0; y <= height; y += CELL_SIZE) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", 0);
+        line.setAttribute("y1", y);
+        line.setAttribute("x2", width);
+        line.setAttribute("y2", y);
+        line.setAttribute("stroke", GRID_COLOR);
+        line.setAttribute("stroke-width", 0.5);
+        svg.appendChild(line);
+    }
+
+    // Draw corridors first
+    corridorsAndDoors.corridors.forEach(corridor => {
+        if (corridor && typeof corridor.x === 'number' && typeof corridor.y === 'number' &&
+            typeof corridor.width === 'number' && typeof corridor.height === 'number' &&
+            !isNaN(corridor.x) && !isNaN(corridor.y) && !isNaN(corridor.width) && !isNaN(corridor.height)) {
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", corridor.x);
+            rect.setAttribute("y", corridor.y);
+            rect.setAttribute("width", corridor.width);
+            rect.setAttribute("height", corridor.height);
+            rect.setAttribute("fill", "white");
+            rect.setAttribute("stroke", "black");
+            rect.setAttribute("stroke-width", 0.5);
+            svg.appendChild(rect);
+        } else {
+            console.warn('Invalid corridor, skipping:', corridor);
+        }
+    });
+
+    // Then draw rooms on top
+    rooms.forEach(room => {
+        if (room && typeof room.x === 'number' && typeof room.y === 'number' &&
+            !isNaN(room.x) && !isNaN(room.y)) {
+            let shape;
+            if (room.type === 'rectangle') {
+                shape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                shape.setAttribute("x", room.x);
+                shape.setAttribute("y", room.y);
+                shape.setAttribute("width", room.width);
+                shape.setAttribute("height", room.height);
+            } else if (room.type === 'circle') {
+                shape = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                shape.setAttribute("cx", room.x);
+                shape.setAttribute("cy", room.y);
+                shape.setAttribute("r", room.radius);
+            } else if (room.type === 'L-shape') {
+                shape = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const d = `M${room.x},${room.y} h${room.width} v${room.height} h-${room.width - room.cutX} v-${room.height - room.cutY} h-${room.cutX} z`;
+                shape.setAttribute("d", d);
+            }
+            
+            if (shape) {
+                shape.setAttribute("fill", "white");
+                shape.setAttribute("stroke", "black");
+                shape.setAttribute("stroke-width", 0.5);
+                svg.appendChild(shape);
+            }
+        } else {
+            console.warn('Invalid room, skipping:', room);
+        }
+    });
+
+    // Draw doors
+    if (corridorsAndDoors.doors) {
+        corridorsAndDoors.doors.forEach(door => {
+            if (door && typeof door.x === 'number' && typeof door.y === 'number' &&
+                typeof door.width === 'number' && typeof door.height === 'number' &&
+                !isNaN(door.x) && !isNaN(door.y) && !isNaN(door.width) && !isNaN(door.height)) {
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("x", door.x);
+                rect.setAttribute("y", door.y);
+                rect.setAttribute("width", door.width);
+                rect.setAttribute("height", door.height);
+                rect.setAttribute("fill", "brown");
+                svg.appendChild(rect);
+            } else {
+                console.warn('Invalid door, skipping:', door);
+            }
+        });
+    }
+
+    // Draw numbered locations
+    numberedLocations.forEach(location => {
+        if (typeof location.x === 'number' && typeof location.y === 'number' &&
+            !isNaN(location.x) && !isNaN(location.y)) {
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", location.x * CELL_SIZE + CELL_SIZE / 2);
+            circle.setAttribute("cy", location.y * CELL_SIZE + CELL_SIZE / 2);
+            circle.setAttribute("r", CELL_SIZE / 3);
+            circle.setAttribute("fill", "red");
+            svg.appendChild(circle);
+
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", location.x * CELL_SIZE + CELL_SIZE / 2);
+            text.setAttribute("y", location.y * CELL_SIZE + CELL_SIZE / 2);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "central");
+            text.setAttribute("fill", "white");
+            text.setAttribute("font-size", CELL_SIZE / 2);
+            text.textContent = location.number;
+            svg.appendChild(text);
+        } else {
+            console.warn('Invalid numbered location, skipping:', location);
+        }
+    });
+
+    // Draw secret doors
+    secretDoors.forEach(door => {
+        if (typeof door.x1 === 'number' && typeof door.y1 === 'number' &&
+            typeof door.x2 === 'number' && typeof door.y2 === 'number' &&
+            !isNaN(door.x1) && !isNaN(door.y1) && !isNaN(door.x2) && !isNaN(door.y2)) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", door.x1);
+            line.setAttribute("y1", door.y1);
+            line.setAttribute("x2", door.x2);
+            line.setAttribute("y2", door.y2);
+            line.setAttribute("stroke", "red");
+            line.setAttribute("stroke-width", 2);
+            line.setAttribute("stroke-dasharray", "5,5");
+            svg.appendChild(line);
+        } else {
+            console.warn('Invalid secret door, skipping:', door);
+        }
+    });
+
+    // Add furnishings and hazards
+    rooms.forEach(room => {
+        if (room.furnishing) {
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", room.x + room.width / 2);
+            text.setAttribute("y", room.y + room.height / 2);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "central");
+            text.setAttribute("font-size", CELL_SIZE / 2);
+            text.textContent = room.furnishing[0].toUpperCase(); // First letter of furnishing
+            svg.appendChild(text);
+        }
+        if (room.hazard) {
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", room.x + room.width / 2);
+            text.setAttribute("y", room.y + room.height / 2 + CELL_SIZE / 2);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "central");
+            text.setAttribute("font-size", CELL_SIZE / 2);
+            text.setAttribute("fill", "red");
+            text.textContent = room.hazard[0].toUpperCase(); // First letter of hazard
+            svg.appendChild(text);
+        }
+    });
+
+    // Add legend and scale bar
+    // addLegend(svg, width, height);
+    // addScaleBar(svg, width, height);
+
+    addLegendAndScale(svg, width, height, mapType);
+
+
+    document.getElementById("map-result").innerHTML = "";
+    document.getElementById("map-result").appendChild(svg);
+}
+
+function addLegendAndScale(svg, width, height, mapType) {
+    // Add scale bar
+    const scaleGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    scaleGroup.setAttribute("transform", `translate(10, ${height - 30})`);
+
+    const scaleBar = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    scaleBar.setAttribute("x1", 0);
+    scaleBar.setAttribute("y1", 0);
+    scaleBar.setAttribute("x2", 100);
+    scaleBar.setAttribute("y2", 0);
+    scaleBar.setAttribute("stroke", "black");
+    scaleBar.setAttribute("stroke-width", 2);
+    scaleGroup.appendChild(scaleBar);
+
+    const scaleText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    scaleText.setAttribute("x", 50);
+    scaleText.setAttribute("y", -5);
+    scaleText.setAttribute("text-anchor", "middle");
+    scaleText.setAttribute("font-size", "12");
+    scaleText.textContent = "50 feet";
+    scaleGroup.appendChild(scaleText);
+
+    svg.appendChild(scaleGroup);
+
+    // Add legend
+    const legend = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    legend.setAttribute("transform", `translate(${width - 100}, ${height - 100})`);
+
+    const legendItems = [
+        { color: "red", label: "Point of Interest" },
+        { color: "blue", label: "Water" },
+        { color: "green", label: "Vegetation" },
+        { stroke: "red", strokeDasharray: "5,5", label: "Secret Door" }
+    ];
+
+    if (mapType === "town") {
+        legendItems.push({ color: "#808080", label: "Path" });
+        legendItems.push({ color: "#FFFFFF", label: "Building" });
+    }
+
+    legendItems.forEach((item, index) => {
+        const y = index * 20;
+        if (item.color) {
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", 0);
+            rect.setAttribute("y", y);
+            rect.setAttribute("width", 15);
+            rect.setAttribute("height", 15);
+            rect.setAttribute("fill", item.color);
+            legend.appendChild(rect);
+        } else if (item.stroke) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", 0);
+            line.setAttribute("y1", y + 7.5);
+            line.setAttribute("x2", 15);
+            line.setAttribute("y2", y + 7.5);
+            line.setAttribute("stroke", item.stroke);
+            line.setAttribute("stroke-width", 2);
+            line.setAttribute("stroke-dasharray", item.strokeDasharray);
+            legend.appendChild(line);
+        }
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", 20);
+        text.setAttribute("y", y + 12);
+        text.setAttribute("font-size", "12");
+        text.textContent = item.label;
+        legend.appendChild(text);
+    });
+
+    svg.appendChild(legend);
+}
+
+        function addLegend(svg, width, height) {
+            const legend = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            legend.setAttribute("transform", `translate(${width - 100}, ${height - 100})`);
+
+            const items = [
+                { color: "red", label: "Point of Interest" },
+                { color: "blue", label: "Water" },
+                { color: "green", label: "Vegetation" },
+                { stroke: "red", strokeDasharray: "5,5", label: "Secret Door" }
+            ];
+
+            items.forEach((item, index) => {
+                const y = index * 20;
+                if (item.color) {
+                    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    rect.setAttribute("x", 0);
+                    rect.setAttribute("y", y);
+                    rect.setAttribute("width", 15);
+                    rect.setAttribute("height", 15);
+                    rect.setAttribute("fill", item.color);
+                    legend.appendChild(rect);
+                } else if (item.stroke) {
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", 0);
+                    line.setAttribute("y1", y + 7.5);
+                    line.setAttribute("x2", 15);
+                    line.setAttribute("y2", y + 7.5);
+                    line.setAttribute("stroke", item.stroke);
+                    line.setAttribute("stroke-width", 2);
+                    line.setAttribute("stroke-dasharray", item.strokeDasharray);
+                    legend.appendChild(line);
+                }
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", 20);
+                text.setAttribute("y", y + 12);
+                text.setAttribute("font-size", "12");
+                text.textContent = item.label;
+                legend.appendChild(text);
+            });
+
+            svg.appendChild(legend);
+        }
+
+        function addScaleBar(svg, width, height) {
+            const scaleGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            scaleGroup.setAttribute("transform", `translate(10, ${height - 30})`);
+
+            const scaleBar = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            scaleBar.setAttribute("x1", 0);
+            scaleBar.setAttribute("y1", 0);
+            scaleBar.setAttribute("x2", 100);
+            scaleBar.setAttribute("y2", 0);
+            scaleBar.setAttribute("stroke", "black");
+            scaleBar.setAttribute("stroke-width", 2);
+            scaleGroup.appendChild(scaleBar);
+
+            const scaleText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            scaleText.setAttribute("x", 50);
+            scaleText.setAttribute("y", -5);
+            scaleText.setAttribute("text-anchor", "middle");
+            scaleText.setAttribute("font-size", "12");
+            scaleText.textContent = "50 feet";
+            scaleGroup.appendChild(scaleText);
+
+            svg.appendChild(scaleGroup);
+        }
+
+        function generateNumberedLocations(rooms, crLevel) {
+            const totalRooms = rooms.length;
+            const numLocations = Math.floor(totalRooms * (0.05 + (crLevel / 20) * 0.05)); // 5-10% based on CR
+            const numberedLocations = [];
+
+            for (let i = 0; i < numLocations; i++) {
+                const room = rooms[Math.floor(Math.random() * rooms.length)];
+                numberedLocations.push({
+                    x: Math.floor(room.x / CELL_SIZE),
+                    y: Math.floor(room.y / CELL_SIZE),
+                    number: i + 1
+                });
+            }
+
+            return numberedLocations;
         }
 
         function countAliveNeighbors(grid, x, y) {
@@ -702,120 +1969,997 @@
             return count;
         }
 
-        function displayMap(width, height, rooms, corridors, mapType) {
-            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.setAttribute("width", width);
-            svg.setAttribute("height", height);
+        function generateRoomContents(encounters, crLevel, storyline, wanderingMonsters) {
+    const layoutPlan = document.getElementById("layout-plan");
+    layoutPlan.innerHTML = `<h3>${storyline.title}</h3><p>${storyline.description}</p>`;
 
-            // Draw grid
-            for (let x = 0; x <= width; x += CELL_SIZE) {
-                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                line.setAttribute("x1", x);
-                line.setAttribute("y1", 0);
-                line.setAttribute("x2", x);
-                line.setAttribute("y2", height);
-                line.setAttribute("stroke", GRID_COLOR);
-                line.setAttribute("stroke-width", 1);
-                svg.appendChild(line);
+    encounters.forEach((encounter, index) => {
+        const roomDetails = document.createElement("div");
+        roomDetails.className = "room-contents";
+        
+        let content = `<strong>${storyline.mapType === "town" ? "Building" : "Room"} ${index + 1}:</strong><br>`;
+        
+        if (encounter.encounter) {
+            content += `Encounter: ${encounter.encounter.description}<br>`;
+        } else {
+            content += `No encounter in this ${storyline.mapType === "town" ? "building" : "room"}.<br>`;
+        }
+        
+        // Generate NPC (50% chance for towns, 20% for others)
+        if (Math.random() < (storyline.mapType === "town" ? 0.5 : 0.2)) {
+            const npc = generateNPC();
+            content += `NPC: ${npc.name} (${npc.race} ${npc.class})<br>`;
+        }
+        
+        // Generate Item (30% chance for towns, 40% for others)
+        if (Math.random() < (storyline.mapType === "town" ? 0.3 : 0.4)) {
+            const item = generateItem(crLevel);
+            content += `Item: ${item.description}<br>`;
+        }
+        
+        // Generate Furnishing or Building Type
+        if (storyline.mapType === "town") {
+            const buildingType = generateBuildingType();
+            content += `Building Type: ${buildingType}<br>`;
+        } else {
+            const furnishing = addFurnishings();
+            content += `Furnishing: ${furnishing}<br>`;
+        }
+        
+        roomDetails.innerHTML = content;
+        layoutPlan.appendChild(roomDetails);
+    });
+
+    // Add wandering monsters list
+    const wanderingMonstersList = document.createElement("div");
+    wanderingMonstersList.innerHTML = `
+        <h3>Wandering ${storyline.mapType === "town" ? "Encounters" : "Monsters"} (Roll d4)</h3>
+        <ol>
+            ${wanderingMonsters.map(monster => `<li>${monster}</li>`).join('')}
+        </ol>
+    `;
+    layoutPlan.appendChild(wanderingMonstersList);
+}
+
+function generateBuildingType() {
+    const buildingTypes = [
+        "Tavern", "Blacksmith", "General Store", "Temple", "Guard Post", "Noble's Manor",
+        "Alchemist's Shop", "Bakery", "Tailor", "Jeweler", "Carpenter", "Stables",
+        "Inn", "Town Hall", "Library", "Market Stall", "Fishmonger", "Tannery",
+        "Weaver's Workshop", "Herbalist", "Fortune Teller", "Barber", "Butcher", "Candlemaker"
+    ];
+    return buildingTypes[Math.floor(Math.random() * buildingTypes.length)];
+}
+
+function validateAndCorrectMap(rooms, corridorsAndDoors) {
+    const { corridors, doors } = corridorsAndDoors;
+
+    // Helper function to check if two rectangles overlap
+    function rectanglesOverlap(r1, r2) {
+        return !(r1.x + r1.width < r2.x || 
+                 r2.x + r2.width < r1.x || 
+                 r1.y + r1.height < r2.y || 
+                 r2.y + r2.height < r1.y);
+    }
+
+    // Check and extend corridors
+    corridors.forEach((corridor, index) => {
+        let isConnected = false;
+
+        // Check if corridor connects to any room
+        rooms.forEach(room => {
+            if (rectanglesOverlap(corridor, room)) {
+                isConnected = true;
             }
-            for (let y = 0; y <= height; y += CELL_SIZE) {
-                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                line.setAttribute("x1", 0);
-                line.setAttribute("y1", y);
-                line.setAttribute("x2", width);
-                line.setAttribute("y2", y);
-                line.setAttribute("stroke", GRID_COLOR);
-                line.setAttribute("stroke-width", 1);
-                svg.appendChild(line);
+        });
+
+        // Check if corridor connects to any other corridor
+        corridors.forEach((otherCorridor, otherIndex) => {
+            if (index !== otherIndex && rectanglesOverlap(corridor, otherCorridor)) {
+                isConnected = true;
+            }
+        });
+
+        // If not connected, extend the corridor
+        if (!isConnected) {
+            const nearestRoom = rooms.reduce((nearest, room) => {
+                const distance = Math.hypot(
+                    (corridor.x + corridor.width / 2) - (room.x + room.width / 2),
+                    (corridor.y + corridor.height / 2) - (room.y + room.height / 2)
+                );
+                return distance < nearest.distance ? { room, distance } : nearest;
+            }, { room: null, distance: Infinity }).room;
+
+            if (nearestRoom) {
+                if (corridor.width > corridor.height) {
+                    // Horizontal corridor
+                    if (corridor.x < nearestRoom.x) {
+                        corridor.width = nearestRoom.x - corridor.x;
+                    } else {
+                        const newX = nearestRoom.x + nearestRoom.width;
+                        corridor.width = corridor.x + corridor.width - newX;
+                        corridor.x = newX;
+                    }
+                } else {
+                    // Vertical corridor
+                    if (corridor.y < nearestRoom.y) {
+                        corridor.height = nearestRoom.y - corridor.y;
+                    } else {
+                        const newY = nearestRoom.y + nearestRoom.height;
+                        corridor.height = corridor.y + corridor.height - newY;
+                        corridor.y = newY;
+                    }
+                }
+            }
+        }
+    });
+
+    // Update door positions based on corrected corridors
+    doors.forEach(door => {
+        const connectedCorridor = corridors.find(corridor => rectanglesOverlap(door, corridor));
+        if (connectedCorridor) {
+            if (connectedCorridor.width > connectedCorridor.height) {
+                // Horizontal corridor
+                door.y = connectedCorridor.y + connectedCorridor.height / 2 - door.height / 2;
+            } else {
+                // Vertical corridor
+                door.x = connectedCorridor.x + connectedCorridor.width / 2 - door.width / 2;
+            }
+        }
+    });
+
+    return { corridors, doors };
+}
+
+function generateASCIIMap(width, height, numRooms) {
+    const map = Array(height).fill().map(() => Array(width).fill(' '));
+    const rooms = [];
+    const doors = [];
+
+    function addRoom() {
+        const roomWidth = Math.floor(Math.random() * 5) + 5;
+        const roomHeight = Math.floor(Math.random() * 5) + 5;
+        const x = Math.floor(Math.random() * (width - roomWidth - 2)) + 1;
+        const y = Math.floor(Math.random() * (height - roomHeight - 2)) + 1;
+
+        // Check if the room overlaps with existing rooms
+        for (let i = y - 1; i < y + roomHeight + 1; i++) {
+            for (let j = x - 1; j < x + roomWidth + 1; j++) {
+                if (i < 0 || i >= height || j < 0 || j >= width || map[i][j] !== ' ') return false;
+            }
+        }
+
+        // Add the room to the map
+        for (let i = y; i < y + roomHeight; i++) {
+            for (let j = x; j < x + roomWidth; j++) {
+                map[i][j] = '.';
+            }
+        }
+
+        rooms.push({x, y, width: roomWidth, height: roomHeight});
+
+        // Add doors
+        const numDoors = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < numDoors; i++) {
+            let doorX, doorY;
+            do {
+                if (Math.random() < 0.5) {
+                    // Door on vertical wall
+                    doorX = Math.random() < 0.5 ? x : x + roomWidth - 1;
+                    doorY = y + Math.floor(Math.random() * roomHeight);
+                } else {
+                    // Door on horizontal wall
+                    doorX = x + Math.floor(Math.random() * roomWidth);
+                    doorY = Math.random() < 0.5 ? y : y + roomHeight - 1;
+                }
+            } while (doorX < 0 || doorX >= width || doorY < 0 || doorY >= height || map[doorY][doorX] === '+');
+
+            map[doorY][doorX] = '+';
+            doors.push({x: doorX, y: doorY});
+        }
+
+        return true;
+    }
+
+    // Add rooms
+    for (let i = 0; i < numRooms; i++) {
+        let attempts = 0;
+        while (!addRoom() && attempts < 50) attempts++;
+    }
+
+    return { map, rooms, doors };
+}
+
+function validateAndCorrectASCIIMap(asciiMap) {
+    const { map, doors } = asciiMap;
+    const height = map.length;
+    const width = map[0].length;
+
+    function connectDoors(door1, door2) {
+        let x = door1.x;
+        let y = door1.y;
+
+        while (x !== door2.x || y !== door2.y) {
+            if (x < door2.x) x++;
+            else if (x > door2.x) x--;
+            else if (y < door2.y) y++;
+            else if (y > door2.y) y--;
+
+            if (map[y][x] === ' ') {
+                map[y][x] = '#';
+            }
+        }
+    }
+
+    // Connect all doors
+    for (let i = 0; i < doors.length - 1; i++) {
+        connectDoors(doors[i], doors[i + 1]);
+    }
+
+    // Ensure all doors are connected to a corridor or room
+    doors.forEach(door => {
+        const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+        let isConnected = false;
+
+        for (const [dx, dy] of directions) {
+            const newX = door.x + dx;
+            const newY = door.y + dy;
+            if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                if (map[newY][newX] === '#' || map[newY][newX] === '.') {
+                    isConnected = true;
+                    break;
+                }
+            }
+        }
+
+        if (!isConnected) {
+            // Connect to the nearest corridor or room
+            let nearestPoint = null;
+            let minDistance = Infinity;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    if (map[y][x] === '#' || map[y][x] === '.') {
+                        const distance = Math.abs(x - door.x) + Math.abs(y - door.y);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestPoint = {x, y};
+                        }
+                    }
+                }
             }
 
-            // Draw rooms
-            rooms.forEach(room => {
-                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                rect.setAttribute("x", room.x);
-                rect.setAttribute("y", room.y);
-                rect.setAttribute("width", room.width);
-                rect.setAttribute("height", room.height);
-                rect.setAttribute("fill", "white");
-                rect.setAttribute("stroke", "black");
-                svg.appendChild(rect);
+            if (nearestPoint) {
+                connectDoors(door, nearestPoint);
+            }
+        }
+    });
 
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                text.setAttribute("x", room.x + room.width / 2);
-                text.setAttribute("y", room.y + room.height / 2);
-                text.setAttribute("text-anchor", "middle");
-                text.setAttribute("dominant-baseline", "central");
-                text.textContent = room.number;
-                svg.appendChild(text);
+    return asciiMap;
+}
+
+function convertASCIIMapToObjects(asciiMap) {
+    const { map, rooms: asciiRooms, doors: asciiDoors } = asciiMap;
+    const MAP_WIDTH = 800;
+    const MAP_HEIGHT = 600;
+    const CELL_SIZE = Math.min(Math.floor(MAP_WIDTH / map[0].length), Math.floor(MAP_HEIGHT / map.length));
+    const rooms = [];
+    const corridors = [];
+    const doors = [];
+
+    // Convert ASCII rooms to room objects
+    asciiRooms.forEach(room => {
+        rooms.push({
+            x: room.x * CELL_SIZE,
+            y: room.y * CELL_SIZE,
+            width: room.width * CELL_SIZE,
+            height: room.height * CELL_SIZE,
+            type: 'rectangle'
+        });
+    });
+
+    // Convert ASCII corridors to corridor objects
+    for (let y = 0; y < map.length; y++) {
+        let corridorStart = null;
+        for (let x = 0; x < map[y].length; x++) {
+            if (map[y][x] === '#') {
+                if (corridorStart === null) {
+                    corridorStart = x;
+                }
+            } else {
+                if (corridorStart !== null) {
+                    corridors.push({
+                        x: corridorStart * CELL_SIZE,
+                        y: y * CELL_SIZE,
+                        width: (x - corridorStart) * CELL_SIZE,
+                        height: CELL_SIZE
+                    });
+                    corridorStart = null;
+                }
+            }
+        }
+        if (corridorStart !== null) {
+            corridors.push({
+                x: corridorStart * CELL_SIZE,
+                y: y * CELL_SIZE,
+                width: (map[y].length - corridorStart) * CELL_SIZE,
+                height: CELL_SIZE
             });
-
-            // Draw corridors
-            if (mapType !== "cave") {
-                corridors.forEach(corridor => {
-                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    line.setAttribute("x1", corridor.x1);
-                    line.setAttribute("y1", corridor.y1);
-                    line.setAttribute("x2", corridor.x2);
-                    line.setAttribute("y2", corridor.y2);
-                    line.setAttribute("stroke", "black");
-                    line.setAttribute("stroke-width", 2);
-                    svg.appendChild(line);
-                });
-            }
-
-            document.getElementById("map-result").innerHTML = "";
-            document.getElementById("map-result").appendChild(svg);
         }
+    }
 
-        function generateRoomContents(rooms, crLevel, storyline) {
-            const layoutPlan = document.getElementById("layout-plan");
-            layoutPlan.innerHTML = `<h3>${storyline.title}</h3><p>${storyline.description}</p>`;
-
-            rooms.forEach(room => {
-                const roomDetails = document.createElement("div");
-                roomDetails.className = "room-contents";
-                roomDetails.innerHTML = `<h4>Room ${room.number}</h4>`;
-
-                const objects = generateObjects();
-                const monsters = generateMonsters(crLevel);
-                const items = generateItems();
-                const npcs = generateNPCs();
-
-                if (objects.length > 0) roomDetails.innerHTML += `<p><strong>Objects:</strong> ${objects.join(", ")}</p>`;
-                if (monsters.length > 0) roomDetails.innerHTML += `<p><strong>Monsters:</strong> ${monsters.join(", ")}</p>`;
-                if (items.length > 0) roomDetails.innerHTML += `<p><strong>Items:</strong> ${items.join(", ")}</p>`;
-                if (npcs.length > 0) roomDetails.innerHTML += `<p><strong>NPCs:</strong> ${npcs.join(", ")}</p>`;
-
-                layoutPlan.appendChild(roomDetails);
+    // Vertical corridors
+    for (let x = 0; x < map[0].length; x++) {
+        let corridorStart = null;
+        for (let y = 0; y < map.length; y++) {
+            if (map[y][x] === '#') {
+                if (corridorStart === null) {
+                    corridorStart = y;
+                }
+            } else {
+                if (corridorStart !== null) {
+                    corridors.push({
+                        x: x * CELL_SIZE,
+                        y: corridorStart * CELL_SIZE,
+                        width: CELL_SIZE,
+                        height: (y - corridorStart) * CELL_SIZE
+                    });
+                    corridorStart = null;
+                }
+            }
+        }
+        if (corridorStart !== null) {
+            corridors.push({
+                x: x * CELL_SIZE,
+                y: corridorStart * CELL_SIZE,
+                width: CELL_SIZE,
+                height: (map.length - corridorStart) * CELL_SIZE
             });
         }
+    }
 
-        function generateObjects() {
-            const objects = ["Table", "Chair", "Bookshelf", "Chest", "Bed", "Desk", "Wardrobe", "Fireplace", "Statue", "Painting"];
-            return Array(Math.floor(Math.random() * 3) + 1).fill().map(() => objects[Math.floor(Math.random() * objects.length)]);
-        }
+    // Convert ASCII doors to door objects
+    asciiDoors.forEach(door => {
+        doors.push({
+            x: door.x * CELL_SIZE,
+            y: door.y * CELL_SIZE,
+            width: CELL_SIZE / 2,
+            height: CELL_SIZE / 2
+        });
+    });
 
-        function generateMonsters(crLevel) {
-            const monsters = {
-                easy: ["Goblin", "Kobold", "Skeleton", "Zombie"],
-                medium: ["Orc", "Wolf", "Ghoul", "Hobgoblin"],
-                hard: ["Ogre", "Werewolf", "Troll", "Manticore"]
+    return { rooms, corridors, doors };
+}
+
+        function generateItem(crLevel) {
+            const items = [
+                "A rusty sword",
+                "A glowing orb",
+                "A mysterious potion",
+                "An ancient scroll",
+                "A gem-encrusted goblet"
+            ];
+            return {
+                description: items[Math.floor(Math.random() * items.length)]
             };
-            const difficulty = crLevel <= 3 ? "easy" : crLevel <= 7 ? "medium" : "hard";
-            return Array(Math.floor(Math.random() * 2)).fill().map(() => {
-                const monster = monsters[difficulty][Math.floor(Math.random() * monsters[difficulty].length)];
-                return `${monster} (CR ${crLevel})`;
+        }
+
+        function generateMonster(crLevel) {
+            const monsters = [
+                { name: "Goblin", baseHp: 7, baseAc: 15, baseAttack: "1d6" },
+                { name: "Orc", baseHp: 15, baseAc: 13, baseAttack: "1d12" },
+                { name: "Troll", baseHp: 84, baseAc: 15, baseAttack: "2d6+4" },
+                { name: "Dragon", baseHp: 178, baseAc: 19, baseAttack: "2d10+6" }
+            ];
+            const monster = monsters[Math.floor(Math.random() * monsters.length)];
+            const levelAdjustment = Math.max(0, crLevel - 1);
+            return {
+                name: monster.name,
+                hp: monster.baseHp + levelAdjustment * 5,
+                ac: monster.baseAc + Math.floor(levelAdjustment / 2),
+                attack: monster.baseAttack
+            };
+        }
+
+
+        function addEnvironmentalHazards(rooms) {
+            const hazards = ['trap', 'difficult terrain', 'magical area'];
+            rooms.forEach(room => {
+                if (Math.random() < 0.3) { // 30% chance for a hazard
+                    room.hazard = hazards[Math.floor(Math.random() * hazards.length)];
+                }
             });
         }
 
-        function generateItems() {
-            const items = ["Potion of Healing", "Scroll of Identify", "Gold coins", "Gemstones", "Magic wand", "Enchanted sword", "Ancient tome", "Mysterious key"];
-            return Array(Math.floor(Math.random() * 2)).fill().map(() => items[Math.floor(Math.random() * items.length)]);
+        // Perlin noise implementation
+        function generatePerlinNoise(width, height, scale = 20, octaves = 4, persistence = 0.5, lacunarity = 2) {
+            const noise = new Array(height).fill().map(() => new Array(width).fill(0));
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    let amplitude = 1;
+                    let frequency = 1;
+                    let noiseHeight = 0;
+
+                    for (let i = 0; i < octaves; i++) {
+                        const sampleX = x / scale * frequency;
+                        const sampleY = y / scale * frequency;
+
+                        const perlinValue = perlin(sampleX, sampleY);
+                        noiseHeight += perlinValue * amplitude;
+
+                        amplitude *= persistence;
+                        frequency *= lacunarity;
+                    }
+
+                    noise[y][x] = noiseHeight;
+                }
+            }
+
+            return noise;
         }
 
-        function generateNPCs() {
-            const npcs = ["Merchant", "Prisoner", "Guard", "Scholar", "Refugee", "Spy", "Noble", "Priest"];
-            return Math.random() < 0.2 ? [npcs[Math.floor(Math.random() * npcs.length)]] : []; // 20% chance of an NPC
+        // Perlin Noise implementation
+function createNoise2D() {
+    const perm = new Uint8Array(512);
+    const p = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) p[i] = i;
+    for (let i = 255; i > 0; i--) {
+        const n = Math.floor((i + 1) * Math.random());
+        const q = p[i];
+        p[i] = p[n];
+        p[n] = q;
+    }
+    for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+
+    function grad2d(i, x, y) {
+        const v = (i & 1) === 0 ? x : y;
+        return (i & 2) === 0 ? -v : v;
+    }
+
+    return (x, y) => {
+        const X = Math.floor(x) & 255;
+        const Y = Math.floor(y) & 255;
+        x -= Math.floor(x);
+        y -= Math.floor(y);
+        const u = x * x * x * (x * (x * 6 - 15) + 10);
+        const v = y * y * y * (y * (y * 6 - 15) + 10);
+        const A = perm[X] + Y;
+        const B = perm[X + 1] + Y;
+        return (1 - v) * ((1 - u) * grad2d(perm[A], x, y) + 
+                          u * grad2d(perm[B], x - 1, y)) + 
+               v * ((1 - u) * grad2d(perm[A + 1], x, y - 1) +
+                    u * grad2d(perm[B + 1], x - 1, y - 1));
+    };
+}
+
+const noise2D = createNoise2D();
+
+function generatePerlinNoiseMap(width, height, scale = 0.1) {
+    const noiseMap = new Array(height).fill().map(() => new Array(width).fill(0));
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            noiseMap[y][x] = (noise2D(x * scale, y * scale) + 1) / 2; // Normalize to 0-1
+        }
+    }
+    return noiseMap;
+}
+
+function applyPerlinNoiseToMap(svg, width, height) {
+    const noiseMap = generatePerlinNoiseMap(width / CELL_SIZE, height / CELL_SIZE, 0.1);
+    const background = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+    for (let y = 0; y < height / CELL_SIZE; y++) {
+        for (let x = 0; x < width / CELL_SIZE; x++) {
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", x * CELL_SIZE);
+            rect.setAttribute("y", y * CELL_SIZE);
+            rect.setAttribute("width", CELL_SIZE);
+            rect.setAttribute("height", CELL_SIZE);
+            rect.setAttribute("fill", getColorFromHeight(noiseMap[y][x]));
+            background.appendChild(rect);
+        }
+    }
+
+    svg.insertBefore(background, svg.firstChild);
+}
+
+function getColorFromHeight(height) {
+    // Define color ranges for different terrain types
+    if (height < 0.3) return "#4a8fff"; // Water
+    if (height < 0.5) return "#90EE90"; // Light green (grass)
+    if (height < 0.7) return "#228B22"; // Forest green
+    if (height < 0.9) return "#A0522D"; // Brown (hills)
+    return "#808080"; // Grey (mountains)
+}
+
+function generateTownMap(width, height, numBuildings) {
+    const CELL_SIZE = 20;
+    const gridWidth = Math.floor(width / CELL_SIZE);
+    const gridHeight = Math.floor(height / CELL_SIZE);
+    
+    // Generate base terrain using cave generation algorithm
+    let [grid] = generateCave(width, height, 1);
+    
+    // Convert cave terrain to town terrain
+    for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[y].length; x++) {
+            if (grid[y][x] === 0) {
+                grid[y][x] = 2; // 2 will represent grass (former open spaces)
+            } else {
+                grid[y][x] = 1; // 1 will represent lighter brown (former cave walls)
+            }
+        }
+    }
+
+    grid = convertSmallWallsToLakes(grid);
+
+
+    const buildings = [];
+    const doors = [];
+
+// Generate buildings
+for (let i = 0; i < numBuildings; i++) {
+    const buildingType = Math.random();
+    let building;
+
+    if (buildingType < 0.6) { // Rectangle
+        building = generateRectangularBuilding(gridWidth, gridHeight);
+    } else if (buildingType < 0.8) { // L-shape
+        building = generateLShapedBuilding(gridWidth, gridHeight);
+    } else { // Round (tower)
+        building = generateRoundBuilding(gridWidth, gridHeight);
+    }
+
+    if (building && !buildingOverlaps(building, buildings) && canPlaceBuilding(grid, building)) {
+        addBuildingToGrid(grid, building);
+        buildings.push(building);
+
+        // Add a door to the building
+        const door = generateDoor(building);
+        doors.push(door);
+    }
+}
+const paths = generatePaths(buildings, doors, gridWidth, gridHeight);
+
+return { grid, buildings, doors, paths };
+}
+
+function generateDoor(building) {
+    const CELL_SIZE = 20; // Make sure this matches your global CELL_SIZE
+    const DOOR_SIZE = CELL_SIZE / 2;
+    let x, y;
+
+    if (building.type === 'round') {
+        // For round buildings, place the door at the bottom
+        x = (building.x + building.radius) * CELL_SIZE - DOOR_SIZE / 2;
+        y = (building.y + building.radius * 2) * CELL_SIZE - DOOR_SIZE;
+    } else if (building.type === 'L-shape') {
+        // For L-shaped buildings, place the door either on the top edge or the right bottom edge
+        if (Math.random() < 0.5) {
+            // Door on top edge
+            x = (building.x + Math.floor(Math.random() * building.cutX)) * CELL_SIZE;
+            y = building.y * CELL_SIZE;
+        } else {
+            // Door on right bottom edge
+            x = (building.x + building.width) * CELL_SIZE - DOOR_SIZE;
+            y = (building.y + building.cutY + Math.floor(Math.random() * (building.height - building.cutY))) * CELL_SIZE;
+        }
+    } else {
+        // For rectangular buildings, randomly choose a side
+        if (Math.random() < 0.5) {
+            // Door on horizontal edge
+            x = (building.x + Math.floor(Math.random() * building.width)) * CELL_SIZE;
+            y = Math.random() < 0.5 ? building.y * CELL_SIZE : (building.y + building.height) * CELL_SIZE - DOOR_SIZE;
+        } else {
+            // Door on vertical edge
+            x = Math.random() < 0.5 ? building.x * CELL_SIZE : (building.x + building.width) * CELL_SIZE - DOOR_SIZE;
+            y = (building.y + Math.floor(Math.random() * building.height)) * CELL_SIZE;
+        }
+    }
+
+    return { x, y, width: DOOR_SIZE, height: DOOR_SIZE };
+}
+
+function canPlaceBuilding(grid, building) {
+    const padding = 0; // Removed padding to allow more buildings
+    const startX = Math.max(0, building.x - padding);
+    const startY = Math.max(0, building.y - padding);
+    const endX = Math.min(grid[0].length - 1, building.x + (building.width || building.radius * 2) + padding);
+    const endY = Math.min(grid.length - 1, building.y + (building.height || building.radius * 2) + padding);
+
+    let grassCount = 0;
+    let totalCells = 0;
+
+    for (let y = startY; y <= endY; y++) {
+        for (let x = startX; x <= endX; x++) {
+            if (grid[y][x] === 2) { // Check if it's grass
+                grassCount++;
+            }
+            totalCells++;
+        }
+    }
+
+    // Allow building placement if at least 50% of the area is grass
+    return grassCount / totalCells >= 0.5;
+}
+
+function generateBuildingPaths(grid, buildings, paths) {
+    for (let i = 0; i < buildings.length - 1; i++) {
+        const start = getBuildingDoor(buildings[i]);
+        const end = getBuildingDoor(buildings[i + 1]);
+        const path = generateSimplePath(start, end);
+        paths.push(...path);
+    }
+}
+
+function getBuildingDoor(building) {
+    // Simplified door placement - middle of the building
+    if (building.type === 'round') {
+        return { x: building.x, y: building.y };
+    } else {
+        return {
+            x: building.x + Math.floor(building.width / 2),
+            y: building.y + Math.floor(building.height / 2)
+        };
+    }
+}
+
+function generatePath(grid, start, end) {
+    const path = [];
+    let x = start.x;
+    let y = start.y;
+
+    while (x !== end.x || y !== end.y) {
+        if (x !== end.x) {
+            x += x < end.x ? 1 : -1;
+        } else if (y !== end.y) {
+            y += y < end.y ? 1 : -1;
+        }
+        path.push({ x1: x * CELL_SIZE, y1: y * CELL_SIZE, x2: (x + 1) * CELL_SIZE, y2: (y + 1) * CELL_SIZE });
+        grid[y][x] = 3; // Mark as path
+    }
+
+    return path;
+}
+
+function generatePaths(buildings, doors, gridWidth, gridHeight) {
+    const paths = [];
+    const grid = Array(gridHeight).fill().map(() => Array(gridWidth).fill(0));
+
+    // Mark building areas as occupied
+    buildings.forEach(building => {
+        for (let y = building.y; y < building.y + building.height; y++) {
+            for (let x = building.x; x < building.x + building.width; x++) {
+                if (x < gridWidth && y < gridHeight) {
+                    grid[y][x] = 1;
+                }
+            }
+        }
+    });
+
+    // Generate paths between doors
+    for (let i = 0; i < doors.length; i++) {
+        for (let j = i + 1; j < doors.length; j++) {
+            if (Math.random() < 0.7) { // 70% chance to connect doors
+                const path = findPath(doors[i], doors[j], grid);
+                if (path) {
+                    paths.push(...path);
+                    // Mark the path on the grid
+                    path.forEach(segment => {
+                        const [x, y] = segment;
+                        if (x < gridWidth && y < gridHeight) {
+                            grid[y][x] = 2; // 2 represents a path
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    return paths;
+}
+
+function findPath(start, end, grid) {
+    const path = [];
+    let x = Math.floor(start.x / CELL_SIZE);
+    let y = Math.floor(start.y / CELL_SIZE);
+    const endX = Math.floor(end.x / CELL_SIZE);
+    const endY = Math.floor(end.y / CELL_SIZE);
+
+    while (x !== endX || y !== endY) {
+        if (x !== endX) {
+            x += x < endX ? 1 : -1;
+        } else if (y !== endY) {
+            y += y < endY ? 1 : -1;
+        }
+        if (grid[y] && grid[y][x] !== 1) { // Check if not occupied by a building
+            path.push([x, y]);
+        } else {
+            return null; // Path is blocked
+        }
+    }
+
+    return path;
+}
+
+function generateRectangularBuilding(gridWidth, gridHeight) {
+    const width = Math.floor(Math.random() * 3) + 2;
+    const height = Math.floor(Math.random() * 3) + 2;
+    const x = Math.floor(Math.random() * (gridWidth - width));
+    const y = Math.floor(Math.random() * (gridHeight - height));
+    return { x, y, width, height, type: 'rectangle' };
+}
+
+function generateLShapedBuilding(gridWidth, gridHeight) {
+    const width = Math.floor(Math.random() * 3) + 3;
+    const height = Math.floor(Math.random() * 3) + 3;
+    const x = Math.floor(Math.random() * (gridWidth - width));
+    const y = Math.floor(Math.random() * (gridHeight - height));
+    const cutX = Math.floor(width / 2);
+    const cutY = Math.floor(height / 2);
+    return { x, y, width, height, cutX, cutY, type: 'L-shape' };
+}
+
+function generateRoundBuilding(gridWidth, gridHeight) {
+    const radius = Math.floor(Math.random() * 2) + 1;
+    const x = Math.floor(Math.random() * (gridWidth - 2 * radius)) + radius;
+    const y = Math.floor(Math.random() * (gridHeight - 2 * radius)) + radius;
+    return { x, y, radius, type: 'round' };
+}
+
+function buildingOverlaps(newBuilding, existingBuildings) {
+    return existingBuildings.some(building => {
+        const padding = 1; // Add some space between buildings
+        if (newBuilding.type === 'round' || building.type === 'round') {
+            const dx = newBuilding.x - building.x;
+            const dy = newBuilding.y - building.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = (newBuilding.type === 'round' ? newBuilding.radius : Math.sqrt(newBuilding.width * newBuilding.width + newBuilding.height * newBuilding.height) / 2) +
+                                (building.type === 'round' ? building.radius : Math.sqrt(building.width * building.width + building.height * building.height) / 2) +
+                                padding;
+            return distance < minDistance;
+        } else {
+            return newBuilding.x < building.x + building.width + padding &&
+                   newBuilding.x + newBuilding.width + padding > building.x &&
+                   newBuilding.y < building.y + building.height + padding &&
+                   newBuilding.y + newBuilding.height + padding > building.y;
+        }
+    });
+    console.log(existingBuildings);
+}
+
+function addBuildingToGrid(grid, building) {
+    if (building.type === 'round') {
+        // For round buildings, just fill a square
+        for (let y = building.y; y < building.y + building.radius * 2; y++) {
+            for (let x = building.x; x < building.x + building.radius * 2; x++) {
+                if (x >= 0 && x < grid[0].length && y >= 0 && y < grid.length) {
+                    grid[y][x] = 3; // Mark as building
+                }
+            }
+        }
+    } else if (building.type === 'L-shape') {
+        const bitmap = generateLShapedBuildingBitmap(building.width, building.height, building.cutX, building.cutY);
+        for (let y = 0; y < building.height; y++) {
+            for (let x = 0; x < building.width; x++) {
+                if (bitmap[y][x] === 1 && 
+                    building.y + y >= 0 && building.y + y < grid.length && 
+                    building.x + x >= 0 && building.x + x < grid[0].length) {
+                    grid[building.y + y][building.x + x] = 3; // Mark as building
+                }
+            }
+        }
+    } else { // rectangle
+        for (let y = building.y; y < building.y + building.height; y++) {
+            for (let x = building.x; x < building.x + building.width; x++) {
+                if (x >= 0 && x < grid[0].length && y >= 0 && y < grid.length) {
+                    grid[y][x] = 3; // Mark as building
+                }
+            }
+        }
+    }
+}
+
+function generateNaturalRoads(grid, buildings, paths) {
+    const mainRoads = generateMainRoads(grid, buildings);
+    const secondaryRoads = generateSecondaryRoads(grid, buildings, mainRoads);
+    paths.push(...mainRoads, ...secondaryRoads);
+}
+
+function generateMainRoads(grid, buildings) {
+    const mainRoads = [];
+    const centerX = Math.floor(grid[0].length / 2);
+    const centerY = Math.floor(grid.length / 2);
+
+    // Generate a few main roads radiating from the center
+    const numMainRoads = Math.floor(Math.random() * 3) + 2; // 2 to 4 main roads
+    for (let i = 0; i < numMainRoads; i++) {
+        const angle = (i / numMainRoads) * 2 * Math.PI;
+        const endX = Math.floor(centerX + Math.cos(angle) * grid[0].length);
+        const endY = Math.floor(centerY + Math.sin(angle) * grid.length);
+        mainRoads.push(...generateRoadSegment(centerX, centerY, endX, endY));
+    }
+
+    return mainRoads;
+}
+
+function generateSecondaryRoads(grid, buildings, mainRoads) {
+    const secondaryRoads = [];
+
+    buildings.forEach(building => {
+        const closestMainRoad = findClosestRoad(building, mainRoads);
+        if (closestMainRoad) {
+            const buildingCenter = getBuildingCenter(building);
+            secondaryRoads.push(...generateRoadSegment(buildingCenter.x, buildingCenter.y, closestMainRoad.x, closestMainRoad.y));
+        }
+    });
+
+    return secondaryRoads;
+}
+
+function generateSimpleRoads(grid, roads) {
+    const spacing = 5; // Road spacing
+    for (let y = spacing; y < grid.length; y += spacing) {
+        roads.push({
+            x1: 0,
+            y1: y * CELL_SIZE,
+            x2: grid[0].length * CELL_SIZE,
+            y2: y * CELL_SIZE
+        });
+    }
+    for (let x = spacing; x < grid[0].length; x += spacing) {
+        roads.push({
+            x1: x * CELL_SIZE,
+            y1: 0,
+            x2: x * CELL_SIZE,
+            y2: grid.length * CELL_SIZE
+        });
+    }
+}
+
+function generateSimplePath(start, end) {
+    const path = [];
+    let x = start.x;
+    let y = start.y;
+
+    // First, move horizontally
+    while (x !== end.x) {
+        x += x < end.x ? 1 : -1;
+        path.push({ x1: x * CELL_SIZE, y1: y * CELL_SIZE, x2: (x + 1) * CELL_SIZE, y2: (y + 1) * CELL_SIZE });
+    }
+
+    // Then, move vertically
+    while (y !== end.y) {
+        y += y < end.y ? 1 : -1;
+        path.push({ x1: x * CELL_SIZE, y1: y * CELL_SIZE, x2: (x + 1) * CELL_SIZE, y2: (y + 1) * CELL_SIZE });
+    }
+
+    return path;
+}
+
+function generateRoadSegment(x1, y1, x2, y2) {
+    const road = [];
+    const dx = Math.abs(x2 - x1);
+    const dy = Math.abs(y2 - y1);
+    const sx = x1 < x2 ? 1 : -1;
+    const sy = y1 < y2 ? 1 : -1;
+    let err = dx - dy;
+
+    while (true) {
+        road.push({ x1: x1 * CELL_SIZE, y1: y1 * CELL_SIZE, x2: (x1 + 1) * CELL_SIZE, y2: (y1 + 1) * CELL_SIZE });
+
+        if (x1 === x2 && y1 === y2) break;
+        const e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x1 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y1 += sy;
+        }
+    }
+
+    return road;
+}
+
+function findClosestRoad(building, roads) {
+    const buildingCenter = getBuildingCenter(building);
+    let closestRoad = null;
+    let minDistance = Infinity;
+
+    roads.forEach(road => {
+        const distance = Math.sqrt(
+            Math.pow(buildingCenter.x - road.x1 / CELL_SIZE, 2) +
+            Math.pow(buildingCenter.y - road.y1 / CELL_SIZE, 2)
+        );
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestRoad = road;
+        }
+    });
+
+    return closestRoad;
+}
+
+function getBuildingCenter(building) {
+    if (building.type === 'round') {
+        return { x: building.x, y: building.y };
+    } else {
+        return {
+            x: building.x + Math.floor(building.width / 2),
+            y: building.y + Math.floor(building.height / 2)
+        };
+    }
+}
+
+
+
+function isAreaClear(grid, x, y, width, height) {
+    for (let cy = y - 1; cy <= y + height; cy++) {
+        for (let cx = x - 1; cx <= x + width; cx++) {
+            if (cy < 0 || cy >= grid.length || cx < 0 || cx >= grid[0].length || grid[cy][cx] !== 0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function generatePath(x1, y1, x2, y2) {
+    const path = [];
+    let x = x1, y = y1;
+    
+    while (x !== x2 || y !== y2) {
+        if (Math.random() < 0.8 || (x === x2 || y === y2)) { // 80% chance for orthogonal movement, or forced when aligned
+            if (x < x2) x++;
+            else if (x > x2) x--;
+            else if (y < y2) y++;
+            else if (y > y2) y--;
+        } else { // 20% chance for diagonal movement
+            if (x < x2 && y < y2) { x++; y++; }
+            else if (x < x2 && y > y2) { x++; y--; }
+            else if (x > x2 && y < y2) { x--; y++; }
+            else if (x > x2 && y > y2) { x--; y--; }
+        }
+        path.push({ x1: (x - 1) * CELL_SIZE, y1: (y - 1) * CELL_SIZE, x2: x * CELL_SIZE, y2: y * CELL_SIZE });
+    }
+    
+    return path;
+}
+
+        // You'll need to implement or import a basic perlin function here
+        function perlin(x, y) {
+            // Basic perlin noise implementation
+            // This is a placeholder and should be replaced with a proper implementation
+            return Math.sin(x * 10 + y * 10) * 0.5 + 0.5;
+        }
+
+        function getColorFromHeight(height) {
+            const r = Math.floor((0.5 + height * 0.5) * 255);
+            const g = Math.floor((0.3 + height * 0.7) * 255);
+            const b = Math.floor((0.5 + height * 0.5) * 255);
+            return `rgb(${r},${g},${b})`;
+        }
+
+        function applyPerlinNoiseToMap(svg, width, height) {
+            const noise = generatePerlinNoise(width / CELL_SIZE, height / CELL_SIZE);
+            const background = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+            for (let y = 0; y < height / CELL_SIZE; y++) {
+                for (let x = 0; x < width / CELL_SIZE; x++) {
+                    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    rect.setAttribute("x", x * CELL_SIZE);
+                    rect.setAttribute("y", y * CELL_SIZE);
+                    rect.setAttribute("width", CELL_SIZE);
+                    rect.setAttribute("height", CELL_SIZE);
+                    rect.setAttribute("fill", getColorFromHeight(noise[y][x]));
+                    background.appendChild(rect);
+                }
+            }
+
+            svg.insertBefore(background, svg.firstChild);
         }
 
         let combatants = [];
@@ -922,13 +3066,13 @@
             // Set up the default tab (rules)
             openTab(null, 'rules');
 
-            // Add event listener for the generate map button
-            const generateMapBtn = document.getElementById('generate-map-btn');
-            if (generateMapBtn) {
-                generateMapBtn.addEventListener('click', generateMap);
-            } else {
-                console.warn("Element with ID 'generate-map-btn' not found");
-            }
+            // // Add event listener for the generate map button
+            // const generateMapBtn = document.getElementById('generate-map-btn');
+            // if (generateMapBtn) {
+            //     generateMapBtn.addEventListener('click', generateMap);
+            // } else {
+            //     console.warn("Element with ID 'generate-map-btn' not found");
+            // }
 
             // Initialize dice roller
             initializeDiceRoller();
@@ -1097,32 +3241,83 @@
  
 
    
+        // function generateNPC() {
+        //     const races = ["Human", "Elf", "Dwarf", "Halfling", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"];
+        //     const classes = ["Fighter", "Wizard", "Rogue", "Cleric", "Paladin", "Ranger", "Barbarian", "Monk", "Druid", "Warlock"];
+        //     const alignments = ["Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "True Neutral", "Chaotic Neutral", "Lawful Evil", "Neutral Evil", "Chaotic Evil"];
+        //     const traits = ["Brave", "Cautious", "Cheerful", "Suspicious", "Loyal", "Greedy", "Honest", "Deceitful", "Ambitious", "Lazy"];
+
+        //     const names = ["Aelar", "Bran", "Cael", "Dara", "Ely", "Finn", "Gwen", "Hale", "Ivy", "Jarek", "Kara", "Luna", "Mira", "Nara", "Oren", "Pike", "Quinn", "Rune", "Sera", "Tara", "Ula", "Vale", "Wren", "Xara", "Yara", "Zara", "Aric", "Bryn", "Cade", "Drake", "Eira", "Fael", "Gwyn", "Hera", "Iris", "Jade", "Kael", "Lira", "Mira", "Nora", "Oria", "Pike", "Quinn", "Rune", "Sera", "Tara", "Ula", "Vale", "Wren", "Xara", "Yara", "Zara"];
+        //     const sexes = ["Male", "Female", "Unknown"];
+        //     const npc = {
+        //         name: names[Math.floor(Math.random() * names.length)],
+        //         sex: sexes[Math.floor(Math.random() * sexes.length)],
+        //         race: races[Math.floor(Math.random() * races.length)],
+        //         class: classes[Math.floor(Math.random() * classes.length)],
+        //         alignment: alignments[Math.floor(Math.random() * alignments.length)],
+        //         trait: traits[Math.floor(Math.random() * traits.length)]
+        //     };
+
+        //     document.getElementById("npc-result").innerHTML = `
+        //         Name: ${npc.name}<br>
+        //         Sex: ${npc.sex}<br>
+        //         Race: ${npc.race}<br>
+        //         Class: ${npc.class}<br>
+        //         Alignment: ${npc.alignment}<br>
+        //         Personality Trait: ${npc.trait}
+        //     `;
+        // }
+
         function generateNPC() {
-            const races = ["Human", "Elf", "Dwarf", "Halfling", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"];
-            const classes = ["Fighter", "Wizard", "Rogue", "Cleric", "Paladin", "Ranger", "Barbarian", "Monk", "Druid", "Warlock"];
-            const alignments = ["Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "True Neutral", "Chaotic Neutral", "Lawful Evil", "Neutral Evil", "Chaotic Evil"];
-            const traits = ["Brave", "Cautious", "Cheerful", "Suspicious", "Loyal", "Greedy", "Honest", "Deceitful", "Ambitious", "Lazy"];
+    const races = ["Human", "Elf", "Dwarf", "Halfling", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"];
+    const classes = ["Fighter", "Wizard", "Rogue", "Cleric", "Paladin", "Ranger", "Barbarian", "Monk", "Druid", "Warlock"];
+    const alignments = ["Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "True Neutral", "Chaotic Neutral", "Lawful Evil", "Neutral Evil", "Chaotic Evil"];
+    const traits = ["Brave", "Cautious", "Cheerful", "Suspicious", "Loyal", "Greedy", "Honest", "Deceitful", "Ambitious", "Lazy"];
+    const names = ["Aelar", "Bran", "Cael", "Dara", "Ely", "Finn", "Gwen", "Hale", "Ivy", "Jarek", "Kara", "Luna", "Mira", "Nara", "Oren", "Pike", "Quinn", "Rune", "Sera", "Tara", "Ula", "Vale", "Wren", "Xara", "Yara", "Zara"];
+    const sexes = ["Male", "Female", "Unknown"];
 
-            const names = ["Aelar", "Bran", "Cael", "Dara", "Ely", "Finn", "Gwen", "Hale", "Ivy", "Jarek", "Kara", "Luna", "Mira", "Nara", "Oren", "Pike", "Quinn", "Rune", "Sera", "Tara", "Ula", "Vale", "Wren", "Xara", "Yara", "Zara", "Aric", "Bryn", "Cade", "Drake", "Eira", "Fael", "Gwyn", "Hera", "Iris", "Jade", "Kael", "Lira", "Mira", "Nora", "Oria", "Pike", "Quinn", "Rune", "Sera", "Tara", "Ula", "Vale", "Wren", "Xara", "Yara", "Zara"];
-            const sexes = ["Male", "Female", "Unknown"];
-            const npc = {
-                name: names[Math.floor(Math.random() * names.length)],
-                sex: sexes[Math.floor(Math.random() * sexes.length)],
-                race: races[Math.floor(Math.random() * races.length)],
-                class: classes[Math.floor(Math.random() * classes.length)],
-                alignment: alignments[Math.floor(Math.random() * alignments.length)],
-                trait: traits[Math.floor(Math.random() * traits.length)]
-            };
+    return {
+        name: names[Math.floor(Math.random() * names.length)],
+        sex: sexes[Math.floor(Math.random() * sexes.length)],
+        race: races[Math.floor(Math.random() * races.length)],
+        class: classes[Math.floor(Math.random() * classes.length)],
+        alignment: alignments[Math.floor(Math.random() * alignments.length)],
+        trait: traits[Math.floor(Math.random() * traits.length)]
+    };
+}
 
-            document.getElementById("npc-result").innerHTML = `
-                Name: ${npc.name}<br>
-                Sex: ${npc.sex}<br>
-                Race: ${npc.race}<br>
-                Class: ${npc.class}<br>
-                Alignment: ${npc.alignment}<br>
-                Personality Trait: ${npc.trait}
-            `;
-        }
+function generateWanderingMonsters(mapType, crLevel) {
+    const monstersByCR = {
+        low: ["Goblin", "Kobold", "Skeleton", "Zombie"],
+        medium: ["Orc", "Ghoul", "Giant Spider", "Bugbear"],
+        high: ["Troll", "Ogre", "Werewolf", "Wight"]
+    };
+
+    const monstersByTerrain = {
+        dungeon: ["Gelatinous Cube", "Mimic", "Rust Monster", "Ooze"],
+        cave: ["Cave Bear", "Giant Bat", "Carrion Crawler", "Piercer"],
+        forest: ["Owlbear", "Dryad", "Dire Wolf", "Giant Owl"],
+        mountain: ["Rock Troll", "Griffon", "Manticore", "Wyvern"],
+        desert: ["Giant Scorpion", "Mummy", "Sand Elemental", "Lamia"],
+        swamp: ["Hydra", "Lizardfolk", "Will-o'-Wisp", "Black Dragon"]
+    };
+
+    let monsters;
+    if (crLevel <= 5) {
+        monsters = monstersByCR.low;
+    } else if (crLevel <= 10) {
+        monsters = monstersByCR.medium;
+    } else {
+        monsters = monstersByCR.high;
+    }
+
+    // Add two terrain-specific monsters
+    const terrainMonsters = monstersByTerrain[mapType] || monstersByTerrain.dungeon;
+    monsters = monsters.concat(terrainMonsters.slice(0, 2));
+
+    // Shuffle and take the first 4
+    return monsters.sort(() => 0.5 - Math.random()).slice(0, 4);
+}
 
         function generateLoot() {
             const lootType = document.getElementById("loot-type").value;
